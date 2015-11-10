@@ -40,17 +40,31 @@ function wentasi_customize_register( $wp_customize ) {
     );
 
     // @todo Better sanitize_callback functions.
-    $wp_customize->add_setting( 'abc_repeatable_id', array(
-        'default' => array(
+    $wp_customize->add_setting( 'new_repeatable_id', array(
+        'default' => json_encode(
+
             array(
-                'id_name_1' => 'Ttitle',
-                'id_name_color' => '#333333',
-                'id_name_2'  => 'la la la',
-                'id_name_3'     => array(
-                    'id'=>'2324324',
-                    'url'=>'',
+                array(
+                    'id_name_1' => 'Item 1',
+                    'id_name_color' => '#333333',
+                    'id_name_2'  => 'la la la',
+                    'id_name_3'     => array(
+                        'id'=>'2324324',
+                        'url'=>'',
+                    ),
                 ),
-            ),
+
+                array(
+                    'id_name_1' => 'Item 2',
+                    'id_name_color' => '#333333',
+                    'id_name_2'  => 'la la la',
+                    'id_name_3'     => array(
+                        'id'=>'2324324',
+                        'url'=>'',
+                    ),
+                ),
+
+            )
 
         ),
         //'sanitize_callback' => 'sanitize_repeatable_data_field',
@@ -62,7 +76,7 @@ function wentasi_customize_register( $wp_customize ) {
     $wp_customize->add_control(
         new WP_Customize_Repeatable_Control(
             $wp_customize,
-            'abc_repeatable_id',
+            'new_repeatable_id',
             array(
                 'label' 		=> __('Repeatable Field', 'wentasi'),
                 'description'   => 'dsadadasdasas',

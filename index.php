@@ -7,7 +7,7 @@
 	<?php
 
     echo '<pre>';
-    print_r( get_theme_mod( 'abc_repeatable_id' ) );
+    print_r( json_decode( get_theme_mod( 'new_repeatable_id' ), true ) );
     echo '</pre>';
 
 

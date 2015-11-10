@@ -60,7 +60,7 @@ function sanitize_repeatable_data_field( $input ){
         }
     }
 
-    return $data;
+    return json_encode( $data );
 }
 
 
@@ -118,9 +118,9 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
     public function to_json() {
         parent::to_json();
         $this->json['live_title_id'] = $this->live_title_id;
-        $this->json['title_format'] = $this->title_format;
-        $this->json['value']   = $this->value();
-        $this->json['fields'] = $this->fields;
+        $this->json['title_format']  = $this->title_format;
+        $this->json['value']         = $this->value();
+        $this->json['fields']        = $this->fields;
 
     }
 

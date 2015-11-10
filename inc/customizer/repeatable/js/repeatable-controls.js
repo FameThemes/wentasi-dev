@@ -4,9 +4,7 @@ var RepeatableCustomize = function (  control  ){
     var $ = jQuery;
     var container =  control.container;
     var default_data =  control.params.fields;
-    var values = control.params.value;
-
-    //console.log( control.params );
+    var values = JSON.parse( control.params.value ) ;
 
     that.getData = function ( ){
         var f = $( '.form-data', container );
