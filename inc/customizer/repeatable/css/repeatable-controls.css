@@ -2,7 +2,13 @@
     height: 42px;
     display: block;
 }
-
+.list-repeatable li {
+    margin-bottom: 0px;
+    padding: 5px 0px 5px;
+}
+.list-repeatable .widget {
+    margin-bottom: 0px;
+}
 .list-repeatable  .widget-top:after {
     clear: both; display: block; content: " ";
 }
