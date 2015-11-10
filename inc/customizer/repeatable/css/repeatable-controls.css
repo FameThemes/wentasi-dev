@@ -1,3 +1,8 @@
+.list-repeatable .sortable-placeholder {
+    height: 42px;
+    display: block;
+}
+
 .list-repeatable  .widget-top:after {
     clear: both; display: block; content: " ";
 }
