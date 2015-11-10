@@ -1,39 +1,66 @@
 <?php
 
 define( 'REPEATABLE_CONTROL_URL', get_template_directory_uri().'/inc/customizer/repeatable/' );
-//require_once dirname( __FILE__ ) . '/customize/control-repeatable.php';
 
-function sanitize_repeatable_data_field_deep( $data ){
 
-    if ( $data && is_array( $data ) ){
-        foreach ( $data as $k => $v ){
-            if ( is_array( $v ) ) {
-                $data[ $k ] = sanitize_repeatable_data_field_deep ( $v );
-            } else {
-                $data[ $k ] =  wp_kses_post( $v ) ;
+
+function sanitize_repeatable_data_field( $input ){
+
+    $input = json_decode( $input, true );
+    $input = wp_parse_args( $input, array( 'data'=>'', 'fields'=> array() ) );
+    $fields = $input['fields'];
+    $data = wp_parse_args( $input['data'], array() );
+    $data =  isset( $data['_items'] ) ? $data['_items'] : false;
+    if ( ! $data ) {
+        return false;
+    }
+    foreach( $data as $i => $item_data ){
+        foreach( $item_data as $id => $value ){
+
+            if ( isset( $fields[ $id ] ) ){
+
+                switch( strtolower( $fields[ $id ]['type'] ) ) {
+                    case 'text':
+                        $data[ $i ][ $id ] = sanitize_text_field( $value );
+                        break;
+                    case 'textarea':
+                        $data[ $i ][ $id ] = wp_kses_post( $value );
+                        break;
+                    case 'color':
+                        $data[ $i ][ $id ] = sanitize_hex_color_no_hash( $value );
+                        break;
+                    case 'checkbox':
+                        $data[ $i ][ $id ] = sanitize_text_field( $value );
+                        break;
+                    case 'select':
+                        if ( is_array( $value ) ){
+                            foreach( $value as $k => $v ){
+                                $value [ $k ] =  sanitize_text_field( $v );
+                            }
+                            $data[ $i ][ $id ] = $value;
+                        }else {
+                            $data[ $i ][ $id ] = sanitize_text_field( $value );
+                        }
+                        break;
+                    case 'radio':
+                        $data[ $i ][ $id ] = sanitize_text_field( $value );
+                        break;
+                    case 'media':
+                        $data[ $i ][ $id ]['url'] = sanitize_text_field( $value['url'] );
+                        $data[ $i ][ $id ]['id']  = sanitize_text_field( $value['id'] );
+                        break;
+                    default:
+                        $data[ $i ][ $id ] = wp_kses_post( $value );
+                }
+
+            }else {
+                $data[ $i ][ $id ] = wp_kses_post( $value );
             }
+
         }
     }
 
     return $data;
-}
-
-function sanitize_repeatable_data_field( $input ){
-
-    //$data = json_decode( stripslashes_deep( $input ), true );
-    $data = wp_parse_args( $input, array() );
-
-    if ( $data && is_array( $data ) ){
-        $data =  sanitize_repeatable_data_field_deep( $data );
-
-        if ( isset( $data['_items'] ) ){
-            return $data['_items'];
-        } else{
-            return $data;
-        }
-    }
-
-    return $input;
 }
 
 
@@ -76,7 +103,6 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
                 } else {
                     $args['fields'][ $key ]['value'] = '';
                 }
-
             }
         }
 

@@ -6,12 +6,12 @@ var RepeatableCustomize = function (  control  ){
     var default_data =  control.params.fields;
     var values = control.params.value;
 
-    console.log( control.params );
+    //console.log( control.params );
 
     that.getData = function ( ){
         var f = $( '.form-data', container );
         var data =  $( 'input, textarea, select', f ).serialize();
-        return data;
+        return  JSON.stringify( { data: data, fields: default_data } ) ;
     };
 
     that.rename = function(){
