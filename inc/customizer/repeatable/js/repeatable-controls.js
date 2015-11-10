@@ -228,7 +228,7 @@ var RepeatableCustomize = function (  control  ){
 
     $( ".list-repeatable", container ).sortable({
         handle: ".widget-title",
-        containment: "parent",
+        containment: ".customize-control-repeatable",
        /// placeholder: "sortable-placeholder",
         update: function( event, ui ) {
             that.rename();
