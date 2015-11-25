@@ -1,10 +1,7 @@
 <?php
 
-define( 'REPEATABLE_CONTROL_URL', get_template_directory_uri().'/inc/customizer/repeatable/' );
 
-
-
-function sanitize_repeatable_data_field( $input ){
+function wentasi_sanitize_repeatable_data_field( $input ){
 
     $input = json_decode( $input, true );
     $input = wp_parse_args( $input, array( 'data'=>'', 'fields'=> array() ) );
@@ -70,7 +67,7 @@ function sanitize_repeatable_data_field( $input ){
  * @since  1.0.0
  * @access public
  */
-class WP_Customize_Repeatable_Control extends WP_Customize_Control {
+class Wentasi_Customize_Repeatable_Control extends WP_Customize_Control {
 
     /**
      * The type of customize control being rendered.
@@ -123,6 +120,31 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
 
     }
 
+    /**
+     * Get url of any dir
+     *
+     * @param string $file full path of current file in that dir
+     * @return string
+     */
+    public static function get_url( $file = '' ){
+        if ( ! $file ) {
+            $file = __FILE__;
+        }
+        if ( 'WIN' === strtoupper( substr( PHP_OS, 0, 3 ) ) ) {
+            // Windows
+            $content_dir = str_replace( '/', DIRECTORY_SEPARATOR, WP_CONTENT_DIR );
+            $content_url = str_replace( $content_dir, WP_CONTENT_URL, trailingslashit( dirname( $file  ) ) );
+            $url = str_replace( DIRECTORY_SEPARATOR, '/', $content_url );
+        } else {
+            $url = str_replace(
+                array( WP_CONTENT_DIR, WP_PLUGIN_DIR ),
+                array( WP_CONTENT_URL, WP_PLUGIN_URL ),
+                trailingslashit( dirname( $file  ) )
+            );
+        }
+        return set_url_scheme( $url );
+    }
+
 
     /**
      * Enqueue scripts/styles.
@@ -133,14 +155,16 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
      */
     public function enqueue() {
 
+        $url = self::get_url();
+
         wp_enqueue_media();
 
         wp_enqueue_script( 'jquery-ui-sortable' );
         wp_enqueue_script( 'wp-color-picker' );
         wp_enqueue_style( 'wp-color-picker' );
 
-        wp_register_script( 'repeatable-controls', esc_url( REPEATABLE_CONTROL_URL . 'js/repeatable-controls.js' ), array( 'customize-controls' ) );
-        wp_register_style( 'repeatable-controls', esc_url( REPEATABLE_CONTROL_URL . 'css/repeatable-controls.css' ) );
+        wp_register_script( 'repeatable-controls', esc_url( $url . 'js/repeatable-controls.js' ), array( 'customize-controls' ) );
+        wp_register_style( 'repeatable-controls', esc_url( $url . 'css/repeatable-controls.css' ) );
 
         wp_enqueue_script( 'repeatable-controls' );
         wp_enqueue_style( 'repeatable-controls' );

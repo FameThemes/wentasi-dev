@@ -1,6 +1,6 @@
 <?php
 
-function sanitize_typography_field( $value ){
+function wentasi_sanitize_typography_field( $value ){
 
     if( is_string( $value ) ) {
         $value = json_decode( $value, true );
@@ -40,7 +40,7 @@ function sanitize_typography_field( $value ){
  * @since  1.0.0
  * @access public
  */
-class WP_Customize_Typography_Control extends WP_Customize_Control {
+class Wentasi_Customize_Typography_Control extends WP_Customize_Control {
 
     /**
      * The type of customize control being rendered.

@@ -13,7 +13,7 @@
 # Register our customizer panels, sections, settings, and controls.
 $GLOBALS['wp_typography_auto_apply'] = array();
 
-add_action( 'wp_head', 'wp_typography_print_styles', 99 );
+add_action( 'wp_head', 'wentasi_typography_print_styles', 99 );
 
 
 /**
@@ -23,7 +23,7 @@ add_action( 'wp_head', 'wp_typography_print_styles', 99 );
  * @access public
  * @return void
  */
-function wp_typography_print_styles() {
+function wentasi_typography_print_styles() {
 
     global $wp_typography_auto_apply;
     $google_fonts = array();
@@ -61,7 +61,7 @@ function wp_typography_print_styles() {
 
             }
 
-            $css[] = wp_typography_css( $data['css'], array( $data['css_selector'], $settings['css_selector'] ) );
+            $css[] = wentasi_typography_css( $data['css'], array( $data['css_selector'], $settings['css_selector'] ) );
 
         }
     }
@@ -101,7 +101,7 @@ function wp_typography_print_styles() {
  * @param array $selector
  * @return bool|string
  */
-function wp_typography_css( $css, $selector = array() ){
+function wentasi_typography_css( $css, $selector = array() ){
     if ( ! is_array( $css ) || ! $selector ){
         return false;
     }
@@ -143,7 +143,7 @@ function wp_typography_css( $css, $selector = array() ){
  * @param string $css_selector
  * @param string $data_type
  */
-function wp_typography_helper_auto_apply( $setting_key, $css_selector = '',  $data_type = 'theme_mod' ){
+function wentasi_typography_helper_auto_apply( $setting_key, $css_selector = '',  $data_type = 'theme_mod' ){
     global $wp_typography_auto_apply;
     $wp_typography_auto_apply[ $setting_key ] = array(
         'key' => $setting_key,

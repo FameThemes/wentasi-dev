@@ -11,8 +11,8 @@ require get_template_directory() . '/inc/customizer/typography/helper.php';
 /**
  * Auto add style for typography settings
  */
-wp_typography_helper_auto_apply( 'test_typography' );
-wp_typography_helper_auto_apply( 'test_heading_h1' );
+wentasi_typography_helper_auto_apply( 'test_typography' );
+wentasi_typography_helper_auto_apply( 'test_heading_h1' );
 
 
 // Register our customizer panels, sections, settings, and controls.
@@ -70,13 +70,13 @@ function wentasi_customize_register( $wp_customize ) {
             )
         ),
         //'sanitize_callback' => 'sanitize_repeatable_data_field',
-        'sanitize_callback' => 'sanitize_repeatable_data_field',
+        'sanitize_callback' => 'wentasi_sanitize_repeatable_data_field',
         'transport' => 'postMessage', // refresh or postMessage
     ) );
 
 
     $wp_customize->add_control(
-        new WP_Customize_Repeatable_Control(
+        new Wentasi_Customize_Repeatable_Control(
             $wp_customize,
             'new_repeatable_id',
             array(
@@ -168,12 +168,14 @@ function wentasi_customize_register( $wp_customize ) {
     /*------------------------------------------------------------------------*/
 
     // Register typography control JS template.
-    $wp_customize->register_control_type( 'WP_Customize_Typography_Control' );
+    $wp_customize->register_control_type( 'Wentasi_Customize_Typography_Control' );
+
+    $wp_customize->add_panel( 'test_panel_typo', array( 'priority' => 5, 'title' => esc_html__( 'Test Typo Panel', 'ctypo' ) ) );
 
     // Load customizer typography control class.
     $wp_customize->add_section(
         'test_typography_section',
-        array(  'title' => esc_html__( 'Test Paragraphs', 'ctypo' ), 'priority' => 5, )
+        array( 'panel'=> 'test_panel_typo', 'title' => esc_html__( 'Test Paragraphs', 'ctypo' ), 'priority' => 5, )
     );
 
     // Add the `<p>` typography settings.
@@ -198,13 +200,13 @@ function wentasi_customize_register( $wp_customize ) {
                     'style'         => '',
                )
             ),
-            'sanitize_callback' => 'sanitize_typography_field',
+            'sanitize_callback' => 'wentasi_sanitize_typography_field',
             'transport' => 'postMessage'
         )
     );
 
     $wp_customize->add_control(
-        new WP_Customize_Typography_Control(
+        new Wentasi_Customize_Typography_Control(
             $wp_customize,
             'test_typography_a',
             array(
@@ -217,22 +219,28 @@ function wentasi_customize_register( $wp_customize ) {
     );
 
 
+    $wp_customize->add_section(
+        'test_typography_heading',
+        array( 'panel'=> 'test_panel_typo', 'title' => esc_html__( 'Test Heading', 'ctypo' ), 'priority' => 5, )
+    );
+
+
     $wp_customize->add_setting(
         'test_heading_h1',
         array(
-            'sanitize_callback' => 'sanitize_typography_field',
+            'sanitize_callback' => 'wentasi_sanitize_typography_field',
             'transport' => 'postMessage'
         )
     );
 
     $wp_customize->add_control(
-        new WP_Customize_Typography_Control(
+        new Wentasi_Customize_Typography_Control(
             $wp_customize,
             'test_heading_h1',
             array(
                 'label'       => esc_html__( 'Heading h1', 'ctypo' ),
                 'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
-                'section'       => 'test_typography_section',
+                'section'       => 'test_typography_heading',
                 'css_selector'       => 'body .ft-boxct h1', // css selector
                 'fields' => array(
                     'font_family'     => false,
