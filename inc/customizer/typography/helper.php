@@ -13,7 +13,7 @@
 # Register our customizer panels, sections, settings, and controls.
 $GLOBALS['wp_typography_auto_apply'] = array();
 
-add_action( 'wp_head', 'wp_typography_print_styles' );
+add_action( 'wp_head', 'wp_typography_print_styles', 99 );
 
 
 /**
@@ -31,8 +31,6 @@ function wp_typography_print_styles() {
     $css = array();
     $scheme = is_ssl() ? 'https' : 'http';
 
-
-
     if ( ! empty( $wp_typography_auto_apply ) ) {
         foreach( $wp_typography_auto_apply as $k => $settings ) {
             if ( isset( $settings['data_type'] ) && $settings['data_type'] == 'option' ) {
@@ -48,14 +46,18 @@ function wp_typography_print_styles() {
 
             if ( isset( $data['font_url'] ) && is_array( $data['font'] ) ) {
 
-                $google_fonts[ $data['font_id'] ] = $data['font'];
-                if ( ! isset( $font_variants[ $data['font_id' ] ] ) || ! is_array( $font_variants[ $data['font_id' ] ] ) ) {
-                    $font_variants[ $data['font_id' ] ] = array();
+                if ( ! empty( $data['font'] ) ) {
+                    $google_fonts[ $data['font_id'] ] = $data['font'];
+                    if ( ! isset( $font_variants[ $data['font_id' ] ] ) || ! is_array( $font_variants[ $data['font_id' ] ] ) ) {
+                        $font_variants[ $data['font_id' ] ] = array();
+                    }
+
+                    if ( in_array( $data['style'], $data['font']['font_weights'] )  ) {
+                        $font_variants[ $data['font_id'] ][ $data['style'] ] = $data['style'] ;
+                    }
+
                 }
 
-                if ( in_array( $data['style'], $data['font']['font_weights'] )  ) {
-                    $font_variants[ $data['font_id'] ][ $data['style'] ] = $data['style'] ;
-                }
 
             }
 
@@ -107,6 +109,9 @@ function wp_typography_css( $css, $selector = array() ){
     if ( isset( $css['font-family'] ) ) {
         $css['font-family'] = '"'.$css['font-family'].'"';
     }
+
+    $base_px = apply_filters( 'root_typography_css_base_px', 16 ) ; // 16px;
+
     $code = '';
     if ( is_array( $selector ) ) {
         $selector = array_unique( $selector );
@@ -121,6 +126,12 @@ function wp_typography_css( $css, $selector = array() ){
             $code .="\t{$k}: {$v};\n";
         }
     }
+
+    if ( isset ( $css['font-size']  ) && $css['font-size'] != '' ) {
+        $rem = intval( $css['font-size'] )/$base_px;
+        $code .="\tfont-size: {$rem}rem;\n";
+    }
+
     $code .= " }";
     return $code;
 }

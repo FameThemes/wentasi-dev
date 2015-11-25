@@ -5,7 +5,7 @@
 		ready: function() {
 			var control = this;
 
-           // console.log( control );
+            // console.log( control );
 
             control.selectFontOptions( window.typographyWebfonts );
             jQuery( '.typography-font-family select', control.container).html( window.fontFamiliesOptions );
@@ -25,6 +25,7 @@
                 }
             );
 
+            /*
             control.container.on( 'click', '.typography-header', function( event ){
                 event.preventDefault();
                 jQuery( '.typography-settings', control.container ).slideToggle( );
@@ -34,55 +35,87 @@
                 event.preventDefault();
                 jQuery( '.typography-settings', control.container ).slideUp( );
             } );
+            */
 
 		},
 
         setupDefaultFields: function(){
+
             var control = this, v, v_unit;
             if ( control.params.value.length <= 0 ) {
                 return ;
             }
             var values = JSON.parse( control.params.value );
-           // if ( typeof ( values ).length ) {}
             //console.log( values );
+
+            values.css = jQuery.extend( true, {
+                    'font-family'     : '',
+                    'font-color'      : '',
+                    'font-style'      : '',
+                    'font-size'       : '',
+                    'line-height'     : '',
+                    'letter-spacing'  : '',
+                    'text-transform'  : '',
+                    'text-decoration' : '',
+                }, values.css );
+
             control.setFontVariants( values.font_id );
 
-            jQuery( '.font-family', control.container ).find( 'option[value="'+values.font_id+'"]').attr( 'selected', 'selected' );
-            jQuery( '.font-style', control.container ).find( 'option[value="'+ ( values.css['font-weight']+values.css['font-style'] ) +'"]').attr( 'selected', 'selected' );
 
-            // font size
-            v = parseFloat( values.css['font-size'] );
-            v_unit = values.css['font-size'].replace(/([0-9]+)/i, '');
-            jQuery( '.font-size', control.container ).val( v );
-            jQuery( '.font-size-unit', control.container ).find( 'option[value="'+ v_unit +'"]').attr( 'selected', 'selected' );
+            if ( control.params.fields.font_family ) {
+                jQuery('.font-family', control.container).find('option[value="' + values.font_id + '"]').attr('selected', 'selected');
+            }
+
+            if ( control.params.fields.font_family && control.params.fields.font_style ) {
+                jQuery('.font-style', control.container).find('option[value="' + ( values.css['font-weight'] + values.css['font-style'] ) + '"]').attr('selected', 'selected');
+            }
+
+            if ( control.params.fields.font_size ) {
+                // font size
+                v = parseFloat( values.css['font-size'] );
+                v_unit = values.css['font-size'].replace(/([0-9]+)/i, '');
+                jQuery('.font-size', control.container).val( v );
+                jQuery('.font-size-unit', control.container).find('option[value="' + v_unit + '"]').attr('selected', 'selected');
+            }
 
             // Line height
-            v = parseFloat( values.css['line-height'] );
-            v_unit = values.css['line-height'].replace(/([0-9]+)/i, '');
-            jQuery( '.line-height', control.container ).val( v );
-            jQuery( '.line-height-unit', control.container ).find( 'option[value="'+ v_unit +'"]').attr( 'selected', 'selected' );
+            if ( control.params.fields.line_height ) {
+                v = parseFloat(values.css['line-height']);
+                v_unit = values.css['line-height'].replace(/([0-9]+)/i, '');
+                jQuery('.line-height', control.container).val(v);
+                jQuery('.line-height-unit', control.container).find('option[value="' + v_unit + '"]').attr('selected', 'selected');
+            }
 
             // Letter spacing
-            v = parseFloat( values.css['letter-spacing'] );
-            v_unit = values.css['letter-spacing'].replace(/([0-9]+)/i, '');
-            jQuery( '.letter-spacing', control.container ).val( v );
-            jQuery( '.letter-spacing', control.container ).find( 'option[value="'+ v_unit +'"]').attr( 'selected', 'selected' );
+            if ( control.params.fields.letter_spacing ) {
+                v = parseFloat(values.css['letter-spacing']);
+                v_unit = values.css['letter-spacing'].replace(/([0-9]+)/i, '');
+                jQuery('.letter-spacing', control.container).val(v);
+                jQuery('.letter-spacing', control.container).find('option[value="' + v_unit + '"]').attr('selected', 'selected');
+            }
 
             // text decoration
-            jQuery( '.text-decoration', control.container ).find( 'option[value="'+ ( values.css['text-decoration'] ) +'"]').attr( 'selected', 'selected' );
+            if ( control.params.fields.text_decoration ) {
+                jQuery('.text-decoration', control.container).find('option[value="' + ( values.css['text-decoration'] ) + '"]').attr('selected', 'selected');
+            }
 
             // text transform
-            jQuery( '.text-transform', control.container ).find( 'option[value="'+ ( values.css['text-transform'] ) +'"]').attr( 'selected', 'selected' );
+            if ( control.params.fields.text_transform ) {
+                jQuery('.text-transform', control.container).find('option[value="' + ( values.css['text-transform'] ) + '"]').attr('selected', 'selected');
+            }
 
             // text Color
-            jQuery( '.text-color', control.container ).val( values.css.color );
+            if ( control.params.fields.font_color ) {
+                jQuery('.text-color', control.container).val(values.css.color);
+
+                jQuery('.text-color', control.container).wpColorPicker({
+                    change: function (event, ui) {
+                        control.setValues(v);
+                    },
+                });
+            }
 
 
-            jQuery('.text-color', control.container ).wpColorPicker( {
-                change: function( event, ui ){
-                    control.setValues( v );
-                },
-            });
 
         },
 
@@ -92,58 +125,71 @@
 
             var css = {}, font = {};
 
-            css['font-size']        =  jQuery( '.font-size', control.container ).val() || '';
-            if ( css['font-size'] !== '' ) {
-                css['font-size'] += jQuery( '.font-size-unit', control.container ).val() || 'px';
-            }
-            css['line-height']      =  jQuery( '.line-height', control.container ).val() || '';
-
-            if ( css['line-height'] !== '' ) {
-                css['line-height'] += jQuery( '.line-height-unit', control.container ).val() || 'px';
-            }
-
-            css['letter-spacing']   =  jQuery( '.letter-spacing', control.container ).val() || '';
-
-            if ( css['letter-spacing'] !== '' ) {
-                css['letter-spacing'] += jQuery( '.letter-spacing-unit', control.container ).val() || 'px';
-            }
-
-            css['text-decoration']  =  jQuery( '.text-decoration', control.container ).val();
-            css['text-transform']   =  jQuery( '.text-transform', control.container ).val();
-            css['color']            =  jQuery( '.text-color', control.container ).val();
-
-            var _style =  jQuery( 'select.font-style', control.container ).val() || '';
-            var style;
-            var weight = parseInt( _style );
-            if ( isNaN( weight ) ) {
-                weight = '';
-                if ( _style !== 'regular' ) {
-                    style = _style ;
-                }else {
-                    style = 'normal' ;
-                }
-            } else {
-                style = _style.slice( weight.toString().length );
-            }
-
-            if ( style === '' ){
-                style = 'normal' ;
-            }
-
-            css['font-style']  = style;
-            css['font-weight'] = weight;
-
-            var font_id      =  jQuery( '.font-family', control.container ).val();
-            var font_url     =  '';
-            if ( typeof font_id !== 'undefined' ) {
-                if ( typeof window.typographyWebfonts[ font_id ] !== 'undefined'  ) {
-                    font = window.typographyWebfonts[ font_id ];
-                    css['font-family'] =  font.name;
-                    font_url = font.url;
+            if ( control.params.fields.font_size ) {
+                css['font-size'] =  jQuery( '.font-size', control.container ).val() || '';
+                if ( css['font-size'] !== '' ) {
+                    css['font-size'] += 'px';
                 }
             }
 
-            // encodeURIComponent
+            if ( control.params.fields.line_height ) {
+                css['line-height'] = jQuery('.line-height', control.container).val() || '';
+                if (css['line-height'] !== '') {
+                    css['line-height'] += 'px';
+                }
+            }
+
+            if ( control.params.fields.letter_spacing ) {
+                css['letter-spacing'] = jQuery('.letter-spacing', control.container).val() || '';
+                if (css['letter-spacing'] !== '') {
+                    css['letter-spacing'] += 'px';
+                }
+            }
+            if ( control.params.fields.text_decoration ) {
+                css['text-decoration'] = jQuery('.text-decoration', control.container).val() || '';
+            }
+            if ( control.params.fields.text_transform ) {
+                css['text-transform'] = jQuery('.text-transform', control.container).val() || '';
+            }
+            if ( control.params.fields.font_color ) {
+                css['color'] = jQuery('.text-color', control.container).val() || '';
+            }
+
+            if ( control.params.fields.font_family && control.params.fields.font_style ) {
+                var _style = jQuery('select.font-style', control.container).val() || '';
+                var style;
+                var weight = parseInt(_style);
+                if (isNaN(weight)) {
+                    weight = '';
+                    if (_style !== 'regular') {
+                        style = _style;
+                    } else {
+                        style = 'normal';
+                    }
+                } else {
+                    style = _style.slice(weight.toString().length);
+                }
+
+                if (style === '') {
+                    style = 'normal';
+                }
+
+                css['font-style'] = style;
+                css['font-weight'] = weight;
+            }
+
+            if ( control.params.fields.font_family ) {
+                var font_id = jQuery('.font-family', control.container).val();
+                var font_url = '';
+                if (typeof font_id !== 'undefined') {
+                    if (typeof window.typographyWebfonts[font_id] !== 'undefined') {
+                        font = window.typographyWebfonts[font_id];
+                        css['font-family'] = font.name;
+                        font_url = font.url;
+                    }
+                }
+            }
+
              var data = {
                  font_id : font_id,
                  font : font,
@@ -153,7 +199,6 @@
                  font_url : font_url,
              };
 
-            //console.log( data );
             control.settings['default'].set( JSON.stringify( data ) );
             control.preview( data );
 
@@ -161,7 +206,7 @@
 
         preview: function( settings ){
             var frame = jQuery("#customize-preview iframe").contents();
-            //console.log( control.frameBody );
+            console.log( settings );
             if ( settings.font_url ) {
                 var id = 'google-font-' + settings.font_id;
                 if ( jQuery( '#'+id ).length > 0 ){

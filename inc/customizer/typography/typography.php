@@ -68,6 +68,12 @@ class WP_Customize_Typography_Control extends WP_Customize_Control {
     public $css_selector ='';
 
     /**
+     * Settings fields
+     * @var array
+     */
+    public $fields = array();
+
+    /**
      * Set up our control.
      *
      * @since  1.0.0
@@ -86,20 +92,34 @@ class WP_Customize_Typography_Control extends WP_Customize_Control {
         $this->l10n = wp_parse_args(
             $this->l10n,
             array(
-                'family'      => esc_html__( 'Font Family', 'ctypo' ),
-                'option_default'      => esc_html__( 'Default', 'ctypo' ),
-                'size'        => esc_html__( 'Font Size',   'ctypo' ),
-                'style'       => esc_html__( 'Font Weight/Style',  'ctypo' ),
-                'line_height' => esc_html__( 'Line Height', 'ctypo' ),
-                'text_decoration' => esc_html__( 'Text Decoration', 'ctypo' ),
-                'letter_spacing' => esc_html__( 'Letter Spacing', 'ctypo' ),
-                'text_transform' => esc_html__( 'Text Transform', 'ctypo' ),
-                'color' => esc_html__( 'Color', 'ctypo' ),
-
+                'family'      => esc_html__( 'Font Family', 'ft' ),
+                'option_default'      => esc_html__( 'Default', 'ft' ),
+                'size'        => esc_html__( 'Font Size (px)',   'ft' ),
+                'style'       => esc_html__( 'Font Weight/Style',  'ft' ),
+                'line_height' => esc_html__( 'Line Height (px)', 'ft' ),
+                'text_decoration' => esc_html__( 'Text Decoration', 'ft' ),
+                'letter_spacing' => esc_html__( 'Letter Spacing (px)', 'ft' ),
+                'text_transform' => esc_html__( 'Text Transform', 'ft' ),
+                'color' => esc_html__( 'Color', 'ft' ),
             )
         );
 
         $this->css_selector = isset( $args['css_selector'] ) ? $args['css_selector'] : '';
+        if ( ! isset( $args['fields'] ) ) {
+            $args['fields'] = array();
+        }
+
+        $this->fields = wp_parse_args( $args['fields'], array(
+            'font_family'     => true,
+            'font_color'      => true,
+            'font_style'      => true,
+            'font_size'       => true,
+            'line_height'     => true,
+            'letter_spacing'  => true,
+            'text_transform'  => true,
+            'text_decoration' => true,
+        ) );
+
     }
 
 
@@ -260,27 +280,27 @@ class WP_Customize_Typography_Control extends WP_Customize_Control {
 
         wp_localize_script('jquery', 'typographyWebfonts',  $this->get_fonts() );
         wp_localize_script('jquery', 'fontStyleLabels', array(
-            '100' => __( 'Thin 100' ),
-            '100italic' => __( 'Thin 100 Italic' ),
+            '100' => __( 'Thin 100', 'ft' ),
+            '100italic' => __( 'Thin 100 Italic', 'ft' ),
             '200' => __( 'Extra-Light 200' ),
-            '200italic' => __( 'Extra-Light 200 Italic' ),
+            '200italic' => __( 'Extra-Light 200 Italic', 'ft' ),
             '300' => __( 'Light 300' ),
-            '300italic' => __( 'Light 300 Italic' ),
+            '300italic' => __( 'Light 300 Italic', 'ft' ),
             '400' => __( 'Normal 400' ),
-            '400italic' => __( 'Normal 400 Italic' ),
+            '400italic' => __( 'Normal 400 Italic', 'ft' ),
             'regular' => __( 'Normal' ),
-            'italic' => __( 'Normal Italic' ),
+            'italic' => __( 'Normal Italic', 'ft' ),
             '500' => __( 'Medium 500' ),
-            '500italic' => __( 'Medium 500 Italic' ),
+            '500italic' => __( 'Medium 500 Italic', 'ft' ),
             '600' => __( 'Semi-Bold 600' ),
-            '600italic' => __( 'Semi-Bold 600 Italic' ),
-            '700' => __( 'Bold 700' ),
-            '700italic' => __( 'Bold 700 Italic' ),
+            '600italic' => __( 'Semi-Bold 600 Italic', 'ft' ),
+            '700' => __( 'Bold 700', 'ft' ),
+            '700italic' => __( 'Bold 700 Italic', 'ft' ),
             '800' => __( ' Extra-Bold 800' ),
-            '800italic' => __( ' Extra-Bold 800 Italic' ),
-            '700italic' => __( 'Bold 700 Italic' ),
-            '900' => __( 'Ultra-Bold 900' ),
-            '900italic' => __( 'Ultra-Bold 900 Italic' ),
+            '800italic' => __( ' Extra-Bold 800 Italic', 'ft' ),
+            '700italic' => __( 'Bold 700 Italic', 'ft' ),
+            '900' => __( 'Ultra-Bold 900', 'ft' ),
+            '900italic' => __( 'Ultra-Bold 900 Italic', 'ft' ),
         ) );
 
         wp_register_script( 'typography-customize-controls', esc_url( $uri . 'js/typography-controls.js' ), array( 'customize-controls' ) );
@@ -303,7 +323,8 @@ class WP_Customize_Typography_Control extends WP_Customize_Control {
         // Loop through each of the settings and set up the data for it.
         $this->json['value']         = is_array( $this->value() ) ?  json_encode( $this->value() ) :  $this->value() ;
         $this->json['labels']        = $this->l10n;
-        $this->json['css_selector']      = $this->css_selector;
+        $this->json['css_selector']  = $this->css_selector;
+        $this->json['fields']        = $this->fields;
 
     }
 
@@ -333,81 +354,76 @@ class WP_Customize_Typography_Control extends WP_Customize_Control {
 
             <div class="typography-settings">
 
-
-
                 <ul>
+                    <# if ( data.fields.font_family ) { #>
                     <li class="typography-font-family">
                         <span class="customize-control-title">{{ data.labels.family }}</span>
                         <select class="font-family select-typo-font-families"></select>
                     </li>
+                    <# } #>
 
-                    <li class="typography-font-style">
-                        <# if ( data.labels.style ) { #>
+                    <# if ( data.fields.font_family && data.fields.font_style ) { #>
+                    <li class="typography-font-style typography-half">
                         <span class="customize-control-title">{{ data.labels.style }}</span>
-                        <# } #>
                         <select class="font-style"></select>
                     </li>
+                    <# } #>
 
-                    <li class="typography-font-size has-unit">
+                    <# if ( data.fields.font_style ) { #>
+                    <li class="typography-font-size typography-half right">
                         <span class="customize-control-title">{{ data.labels.size  }}</span>
-                        <input class="unit-value font-size" type="number" min="1" />
-                        <select class="unit font-size-unit">
-                            <option value="px">px</option>
-                            <option value="em">em</option>
-                            <option value="rem">rem</option>
-                        </select>
+                        <input class="unit-value font-size" placeholder="<?php esc_attr_e( 'Default', 'ft' ); ?>" type="number" min="1" />
                     </li>
+                    <# } #>
 
-                    <li class="typography-line-height has-unit">
+                    <# if ( data.fields.line_height ) { #>
+                    <li class="typography-line-height first typography-half">
                         <span class="customize-control-title">{{ data.labels.line_height }}</span>
-                        <input class="unit-value line-height" type="number" min="1" />
-                        <select class="unit line-height-unit">
-                            <option value="px">px</option>
-                            <option value="em">em</option>
-                            <option value="rem">rem</option>
-                        </select>
+                        <input class="unit-value line-height" placeholder="<?php esc_attr_e( 'Default', 'ft' ); ?>" type="number" min="1" />
                     </li>
+                    <# } #>
 
-
-                    <li class="typography-letter-spacing has-unit">
+                    <# if ( data.fields.letter_spacing ) { #>
+                    <li class="typography-letter-spacing typography-half right">
                         <span class="customize-control-title">{{ data.labels.letter_spacing }}</span>
-                        <input class="unit-value letter-spacing" type="number" />
-                        <select class="unit letter-spacing-unit">
-                            <option value="px">px</option>
-                            <option value="em">em</option>
-                            <option value="rem">rem</option>
-                        </select>
+                        <input class="unit-value letter-spacing" placeholder="<?php esc_attr_e( 'Default', 'ft' ); ?>" type="number" />
                     </li>
+                    <# } #>
 
-                    <li class="typography-text-decoration">
+                    <# if ( data.fields.text_decoration ) { #>
+                    <li class="typography-text-decoration clr">
                         <span class="customize-control-title">{{ data.labels.text_decoration }}</span>
                         <select class="text-decoration">
-                            <option value=""><?php esc_attr_e( 'Default' ); ?></option>
-                            <option value="none"><?php esc_attr_e( 'None' ); ?></option>
-                            <option value="overline"><?php esc_attr_e( 'Overline' ); ?></option>
-                            <option value="underline"><?php esc_attr_e( 'Underline' ); ?></option>
-                            <option value="line-through"><?php esc_attr_e( 'Line through' ); ?></option>
+                            <option value=""><?php esc_attr_e( 'Default', 'ft' ); ?></option>
+                            <option value="none"><?php esc_attr_e( 'None', 'ft' ); ?></option>
+                            <option value="overline"><?php esc_attr_e( 'Overline', 'ft' ); ?></option>
+                            <option value="underline"><?php esc_attr_e( 'Underline', 'ft' ); ?></option>
+                            <option value="line-through"><?php esc_attr_e( 'Line through', 'ft' ); ?></option>
                         </select>
                     </li>
+                    <# } #>
 
-                    <li class="typography-text-transform">
+                    <# if ( data.fields.text_transform ) { #>
+                    <li class="typography-text-transform clr">
                         <span class="customize-control-title">{{ data.labels.text_transform }}</span>
                         <select class="text-transform" >
-                            <option value=""><?php esc_attr_e( 'Default' ); ?></option>
-                            <option value="none"><?php esc_attr_e( 'None' ); ?></option>
-                            <option value="uppercase"><?php esc_attr_e( 'Uppercase' ); ?></option>
-                            <option value="lowercase"><?php esc_attr_e( 'Lowercase' ); ?></option>
-                            <option value="capitalize"><?php esc_attr_e( 'Capitalize' ); ?></option>
+                            <option value=""><?php esc_attr_e( 'Default', 'ft' ); ?></option>
+                            <option value="none"><?php esc_attr_e( 'None', 'ft' ); ?></option>
+                            <option value="uppercase"><?php esc_attr_e( 'Uppercase', 'ft' ); ?></option>
+                            <option value="lowercase"><?php esc_attr_e( 'Lowercase', 'ft' ); ?></option>
+                            <option value="capitalize"><?php esc_attr_e( 'Capitalize', 'ft' ); ?></option>
                         </select>
                     </li>
+                    <# } #>
 
-                    <li class="typography-text-transform typography-half-">
+                    <# if ( data.fields.font_color ) { #>
+                    <li class="typography-text-transform clr">
                         <span class="customize-control-title">{{ data.labels.color }}</span>
                         <input type="text" class="text-color" />
                     </li>
+                    <# } #>
 
                 </ul>
-                <a href="#" class="typography-close"><?php _e( 'Close' ); ?></a>
             </div>
         </div>
     <?php

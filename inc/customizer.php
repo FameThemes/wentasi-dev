@@ -15,7 +15,6 @@ wp_typography_helper_auto_apply( 'test_typography' );
 wp_typography_helper_auto_apply( 'test_heading_h1' );
 
 
-
 // Register our customizer panels, sections, settings, and controls.
 add_action( 'customize_register', 'wentasi_customize_register', 15 );
 
@@ -180,13 +179,13 @@ function wentasi_customize_register( $wp_customize ) {
     // Add the `<p>` typography settings.
     // @todo Better sanitize_callback functions.
     $wp_customize->add_setting(
-        'test_typography',
+        'test_typography_a',
         array(
             'default' => json_encode(
                 array(
                     'css' => array(
                         'font-family'     => '',
-                        'font-color'      => '',
+                        'color'      => '',
                         'font-style'      => '',
                         'font-size'       => '',
                         'line-height'     => '',
@@ -197,13 +196,26 @@ function wentasi_customize_register( $wp_customize ) {
                     'css_selector'  => '',
                     'font_id'       => '',
                     'style'         => '',
-                    'font_url'      => '',
                )
             ),
             'sanitize_callback' => 'sanitize_typography_field',
             'transport' => 'postMessage'
         )
     );
+
+    $wp_customize->add_control(
+        new WP_Customize_Typography_Control(
+            $wp_customize,
+            'test_typography_a',
+            array(
+                'label'       => esc_html__( 'Paragraph Typography', 'ctypo' ),
+                'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
+                'section'       => 'test_typography_section',
+                'css_selector'       => 'body .ft-entry', // css selector
+            )
+        )
+    );
+
 
     $wp_customize->add_setting(
         'test_heading_h1',
@@ -222,22 +234,21 @@ function wentasi_customize_register( $wp_customize ) {
                 'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
                 'section'       => 'test_typography_section',
                 'css_selector'       => 'body .ft-boxct h1', // css selector
+                'fields' => array(
+                    'font_family'     => false,
+                    'font_color'      => true,
+                    'font_style'      => true,
+                    'font_size'       => true,
+                    'line_height'     => false,
+                    'letter_spacing'  => false,
+                    'text_transform'  => false,
+                    'text_decoration' => false,
+                )
             )
         )
     );
 
-    $wp_customize->add_control(
-        new WP_Customize_Typography_Control(
-            $wp_customize,
-            'test_typography',
-            array(
-                'label'       => esc_html__( 'Paragraph Typography', 'ctypo' ),
-                'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
-                'section'       => 'test_typography_section',
-                'css_selector'       => 'body .ft-entry', // css selector
-            )
-        )
-    );
+
 
 
     /* === End Testing === */
