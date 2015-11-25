@@ -1,0 +1,56 @@
+
+.customize-control-typography ul .customize-control-title{
+    font-size: 12px; font-weight: normal;
+}
+.customize-control-typography li.typography-half{
+    float: left;
+    width: 50%;
+}
+.customize-control-typography li.has-unit .unit-value {
+    width: 49%;
+    float: left;
+    margin: 0px;
+}
+.customize-control-typography li.has-unit .unit {
+    float: right;
+    width: 49%;
+    margin: 0px;
+}
+
+.customize-control-typography li.typography-half select, {
+    width: 90%;
+}
+
+.customize-control-typography li.typography-half.first {
+    clear: both;
+}
+
+.customize-control-typography li.typography-half input{
+    width: 75px;
+}
+
+.customize-control-typography optgroup.lv-2 {
+    padding-left: 30px;
+}
+.customize-control-typography .typography-wrap:after, .customize-control-typography li.has-unit:after {
+    clear: both; content: " "; display: block;
+}
+.customize-control-typography .typography-wrap{
+    background: #fff none repeat scroll 0 0;
+    border: 1px solid #e5e5e5;
+    padding: 10px;
+}
+.customize-control-typography .typography-settings {
+    display: none;
+}
+.customize-control-typography .typography-header {
+    position: relative;
+    cursor: pointer;
+}
+.customize-control-typography .typography-header:after {
+    font-family: 'dashicons';
+    content: "\f111";
+    font-size: 18px;
+    position: absolute;
+    top: 0px; right: 0px;
+}

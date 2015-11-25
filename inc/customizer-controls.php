@@ -1,4 +1,9 @@
 <?php
+
+require get_template_directory() . '/inc/customizer/repeatable/repeatable.php';
+require get_template_directory() . '/inc/customizer/typography/typography.php';
+
+
 /*-----------------------------------------------------------------------------------*/
 /*  Wentasi Customizer Controls
 /*-----------------------------------------------------------------------------------*/
