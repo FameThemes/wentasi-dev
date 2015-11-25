@@ -112,7 +112,6 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
             $this->title_format = $args['title_format'];
         }
 
-
     }
 
     public function to_json() {
@@ -169,7 +168,7 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
         </div>
 
         <div class="repeatable-actions">
-            <span data-tpl-id="<?php echo esc_attr( $tpl_id ); ?>" class="button-secondary add-new-repeat-item"><?php _e( 'Add a Item' ) ?></span>
+            <span class="button-secondary add-new-repeat-item"><?php _e( 'Add a Item', 'ft' ); ?></span>
         </div>
 
          <script type="text/html" class="repeatable-js-template">
@@ -189,7 +188,7 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
                         <a class="widget-action" href="#"></a>
                     </div>
                     <div class="widget-title">
-                        <h4 class="live-title"><?php _e( '[Untitled]' ); ?></h4>
+                        <h4 class="live-title"><?php _e( '[Untitled]', 'ft' ); ?></h4>
                     </div>
                 </div>
 
@@ -294,7 +293,7 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
                                             <div class="actions">
                                                 <button class="button remove-button " <# if ( field.value.url !== '' ){ #> style="display:none"; <# } #> type="button"><?php _e( 'Remove' ) ?></button>
 
-                                                <button class="button upload-button" type="button"><?php _e( 'Change Image' ) ?></button>
+                                                <button class="button upload-button" type="button"><?php _e( 'Change Image', 'ft' ); ?></button>
                                                 <div style="clear:both"></div>
                                             </div>
 
@@ -314,8 +313,8 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
 
                             <div class="widget-control-actions">
                                 <div class="alignleft">
-                                    <a href="#" class="repeat-control-remove" title=""><?php _e( 'Remove' ); ?></a> |
-                                    <a href="#" class="repeat-control-close"><?php _e( 'Close' ); ?></a>
+                                    <a href="#" class="repeat-control-remove" title=""><?php _e( 'Remove', 'ft' ); ?></a> |
+                                    <a href="#" class="repeat-control-close"><?php _e( 'Close', 'ft' ); ?></a>
                                 </div>
                                 <br class="clear">
                             </div>
@@ -331,24 +330,5 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
 
     }
 
-
 }
 
-
-
-
-
-# Load scripts and styles.
-// add_action( 'customize_preview_init',             'repeatable_customize_preview_enqueue_scripts'   );
-
-
-/**
- * Load preview scripts/styles.
- *
- * @since  1.0.0
- * @access public
- * @return void
- */
-function repeatable_customize_preview_enqueue_scripts() {
-	wp_enqueue_script( 'repeatable-customize-preview', esc_url( REPEATABLE_CONTROL_URL . 'js/repeatable-preview.js' ), array( 'jquery' ) );
-}

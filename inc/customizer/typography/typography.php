@@ -326,11 +326,15 @@ class WP_Customize_Typography_Control extends WP_Customize_Control {
                <# } #>
 
                <# if ( data.description ) { #>
-               <span class="description customize-control-description">{{{ data.description }}}</span>
+                   <span class="description customize-control-description">{{{ data.description }}}</span>
                <# } #>
+
            </div>
 
             <div class="typography-settings">
+
+
+
                 <ul>
                     <li class="typography-font-family">
                         <span class="customize-control-title">{{ data.labels.family }}</span>
@@ -408,7 +412,5 @@ class WP_Customize_Typography_Control extends WP_Customize_Control {
         </div>
     <?php
     }
-
-
 
 }

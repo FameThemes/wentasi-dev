@@ -112,7 +112,7 @@ var RepeatableCustomize = function (  control  ){
 
     that.actions = function( $context ){
 
-        $( '.widget .widget-action, .widget .repeat-control-close' , $context ).click( function( e ){
+        $( '.widget .widget-action, .widget .repeat-control-close, .widget-title' , $context ).click( function( e ){
             //console.log( 'clicked' );
             var p =  $('.widget', $context );
 

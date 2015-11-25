@@ -47,10 +47,3 @@
     position: relative;
     cursor: pointer;
 }
-.customize-control-typography .typography-header:after {
-    font-family: 'dashicons';
-    content: "\f111";
-    font-size: 18px;
-    position: absolute;
-    top: 0px; right: 0px;
-}

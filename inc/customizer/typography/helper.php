@@ -31,6 +31,8 @@ function wp_typography_print_styles() {
     $css = array();
     $scheme = is_ssl() ? 'https' : 'http';
 
+
+
     if ( ! empty( $wp_typography_auto_apply ) ) {
         foreach( $wp_typography_auto_apply as $k => $settings ) {
             if ( isset( $settings['data_type'] ) && $settings['data_type'] == 'option' ) {
@@ -54,6 +56,7 @@ function wp_typography_print_styles() {
                 if ( in_array( $data['style'], $data['font']['font_weights'] )  ) {
                     $font_variants[ $data['font_id'] ][ $data['style'] ] = $data['style'] ;
                 }
+
             }
 
             $css[] = wp_typography_css( $data['css'], array( $data['css_selector'], $settings['css_selector'] ) );
@@ -61,21 +64,28 @@ function wp_typography_print_styles() {
         }
     }
 
-    //var_dump( $font_variants ); die();
+
+    $_fonts = array();
+    $_subsets = array();
 
     foreach( $google_fonts as $font_id => $font ){
         $name = str_replace( ' ', '+', $font['name'] );
-
         $variants = ( isset( $font_variants[ $font_id ] ) && ! empty( $font_variants[ $font_id ] ) ) ? $font_variants[ $font_id ] :  array( 'regular' );
-
-        $url = $scheme."://fonts.googleapis.com/css?family={$name}:".join( $variants, ',' );
+        $_fonts[ $font_id ] = "{$name}:".join( $variants, ',' );
 
         if ( isset( $font['subsets'] ) ){
-            $url .= '&subset='.join(',', $font['subsets'] );
+            $_subsets = array_merge( $_subsets, $font['subsets'] );
         }
-
-        echo "<link id='google-font-".esc_attr( $font_id )."' href='".esc_url( $url )."' rel='stylesheet' type='text/css'>";
     }
+
+    $url = $scheme."://fonts.googleapis.com/css?family=".join( $_fonts, '|' );
+    if( ! empty( $_subsets ) ) {
+        $_subsets = array_unique( $_subsets );
+        $url .= '&subset='.join(',', $_subsets );
+    }
+
+    echo "<link id='wp-typo-google-font' href='".esc_url( $url )."' rel='stylesheet' type='text/css'>";
+
     echo "\n";
     echo '<style class="wp-typography-print-styles" type="text/css">'."\n".join(" \n ", $css )."\n".'</style>';
     echo "\n";
