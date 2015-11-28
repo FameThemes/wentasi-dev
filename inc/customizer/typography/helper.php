@@ -51,16 +51,14 @@ function wentasi_typography_print_styles() {
             //var_dump( $data ); die();
 
             if ( ( ! $data || empty( $data ) ) && $settings['default'] ) {
-                $data = array();
-                $data['css'] =  $settings['default'];
-                $data['css_selector'] =  $settings['css_selector'];
+                $data =  $settings['default'];
             }
 
             if ( ! is_array( $data ) ) {
                 continue;
             }
 
-            $data['css'] = wp_parse_args( $data['css'] , array(
+            $data = wp_parse_args( $data , array(
                 'font-family'     => '',
                 'color'           => '',
                 'font-style'      => '',
@@ -72,16 +70,18 @@ function wentasi_typography_print_styles() {
                 'text-decoration' => '',
             ) );
 
-            $data['css']  = array_filter( $data['css']  );
+            $data  = array_filter( $data  );
 
-            if( is_array( $settings['default']  ) ) {
-                $data['css'] = array_merge( $settings['default'], $data['css'] );
+            if( empty( $data ) && is_array( $settings['default']  ) ) {
+                $data = array_merge( $settings['default'], $data );
             }
 
+            //var_dump( $data );
+
             $font_id =  false;
-            if ( isset( $data['css'] ) && is_array( $data['css'] ) ) {
-                if ( isset ( $data['css']['font-family'] ) ) {
-                    $font_id = sanitize_title( $data['css']['font-family'] );
+            if ( isset( $data ) && is_array( $data ) ) {
+                if ( isset ( $data['font-family'] ) ) {
+                    $font_id = sanitize_title( $data['font-family'] );
                 }
             }
 
@@ -93,12 +93,12 @@ function wentasi_typography_print_styles() {
                 }
 
                 $style = '';
-                if ( $data['css']['font-weight'] ) {
-                    $style .= $data['css']['font-weight'];
+                if ( $data['font-weight'] ) {
+                    $style .= $data['font-weight'];
                 }
 
-                if ( $data['css']['font-style'] !== '' && $data['css']['font-style']!= 'normal' ) {
-                    $style .= $data['css']['font-style'];
+                if ( $data['font-style'] !== '' && $data['font-style']!= 'normal' ) {
+                    $style .= $data['font-style'];
                 }
 
                 if ( in_array( $style, $fonts[ $font_id ]['font_weights'] )  ) {
@@ -106,7 +106,7 @@ function wentasi_typography_print_styles() {
                 }
             }
 
-            $css[] = wentasi_typography_css( $data['css'], array( $data['css_selector'], $settings['css_selector'] ) );
+            $css[] = wentasi_typography_css( $data, $settings['css_selector'] );
 
         }
     }
@@ -166,8 +166,10 @@ function wentasi_typography_css( $css, $selector = array() ){
     }
 
     $code .= " { \n";
+    //var_dump( $v );
     foreach( $css as $k => $v ){
-        if ( $v ) {
+        if ( $v && ! is_array( $v ) ) {
+
             $code .="\t{$k}: {$v};\n";
         }
     }

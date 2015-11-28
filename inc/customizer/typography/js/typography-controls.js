@@ -25,19 +25,32 @@
                 }
             );
 
-            /*
-            control.container.on( 'click', '.typography-header', function( event ){
-                event.preventDefault();
-                jQuery( '.typography-settings', control.container ).slideToggle( );
-            } );
-
-            control.container.on( 'click', '.typography-close', function( event ){
-                event.preventDefault();
-                jQuery( '.typography-settings', control.container ).slideUp( );
-            } );
-            */
-
 		},
+
+        getFontId: function( fontName ){
+            var font_id = fontName.toLowerCase();
+            return font_id.replace(/ /g, '-');
+        },
+
+        getStyle: function( fontWeight, fontStyle ){
+            var style = '';
+            style += fontWeight;
+            if ( fontWeight !== '' ){
+                style += fontStyle;
+            } else {
+
+                if ( fontStyle === 'normal' ) {
+                    style = 'regular';
+                } else if ( fontStyle === 'regular' ) {
+                    style = fontStyle;
+                } else {
+                    style += fontStyle;
+                }
+
+            }
+
+            return style;
+        },
 
         setupDefaultFields: function(){
 
@@ -48,65 +61,69 @@
             var values = JSON.parse( control.params.value );
             //console.log( values );
 
-            values.css = jQuery.extend( true, {
+            values = jQuery.extend( true, {
                     'font-family'     : '',
                     'font-color'      : '',
                     'font-style'      : '',
+                    'font-weight'     : '',
                     'font-size'       : '',
                     'line-height'     : '',
                     'letter-spacing'  : '',
                     'text-transform'  : '',
                     'text-decoration' : '',
-                }, values.css );
+                }, values );
 
-            control.setFontVariants( values.font_id );
 
+            var font_id = control.getFontId( values['font-family'] ),
+                style = control.getStyle( values['font-weight'], values['font-style'] );
+
+            control.setFontVariants( font_id );
 
             if ( control.params.fields.font_family ) {
-                jQuery('.font-family', control.container).find('option[value="' + values.font_id + '"]').attr('selected', 'selected');
+                jQuery('.font-family', control.container).find('option[value="' + font_id+ '"]').attr('selected', 'selected');
             }
 
             if ( control.params.fields.font_family && control.params.fields.font_style ) {
-                jQuery('.font-style', control.container).find('option[value="' + ( values.css['font-weight'] + values.css['font-style'] ) + '"]').attr('selected', 'selected');
+                jQuery('.font-style', control.container).find('option[value="' + ( style ) + '"]').attr('selected', 'selected');
             }
 
             if ( control.params.fields.font_size ) {
                 // font size
-                v = parseFloat( values.css['font-size'] );
-                v_unit = values.css['font-size'].replace(/([0-9]+)/i, '');
+                v = parseFloat( values['font-size'] );
+                v_unit = values['font-size'].replace(/([0-9]+)/i, '');
                 jQuery('.font-size', control.container).val( v );
                 jQuery('.font-size-unit', control.container).find('option[value="' + v_unit + '"]').attr('selected', 'selected');
             }
 
             // Line height
             if ( control.params.fields.line_height ) {
-                v = parseFloat(values.css['line-height']);
-                v_unit = values.css['line-height'].replace(/([0-9]+)/i, '');
+                v = parseFloat(values['line-height']);
+                v_unit = values['line-height'].replace(/([0-9]+)/i, '');
                 jQuery('.line-height', control.container).val(v);
                 jQuery('.line-height-unit', control.container).find('option[value="' + v_unit + '"]').attr('selected', 'selected');
             }
 
             // Letter spacing
             if ( control.params.fields.letter_spacing ) {
-                v = parseFloat(values.css['letter-spacing']);
-                v_unit = values.css['letter-spacing'].replace(/([0-9]+)/i, '');
+                v = parseFloat(values['letter-spacing']);
+                v_unit = values['letter-spacing'].replace(/([0-9]+)/i, '');
                 jQuery('.letter-spacing', control.container).val(v);
                 jQuery('.letter-spacing', control.container).find('option[value="' + v_unit + '"]').attr('selected', 'selected');
             }
 
             // text decoration
             if ( control.params.fields.text_decoration ) {
-                jQuery('.text-decoration', control.container).find('option[value="' + ( values.css['text-decoration'] ) + '"]').attr('selected', 'selected');
+                jQuery('.text-decoration', control.container).find('option[value="' + ( values['text-decoration'] ) + '"]').attr('selected', 'selected');
             }
 
             // text transform
             if ( control.params.fields.text_transform ) {
-                jQuery('.text-transform', control.container).find('option[value="' + ( values.css['text-transform'] ) + '"]').attr('selected', 'selected');
+                jQuery('.text-transform', control.container).find('option[value="' + ( values['text-transform'] ) + '"]').attr('selected', 'selected');
             }
 
             // text Color
             if ( control.params.fields.font_color ) {
-                jQuery('.text-color', control.container).val(values.css.color);
+                jQuery('.text-color', control.container).val(values.color);
 
                 jQuery('.text-color', control.container).wpColorPicker({
                     change: function (event, ui) {
@@ -199,14 +216,14 @@
                  font_url : font_url,
              };
 
-            control.settings['default'].set( JSON.stringify( data ) );
+            control.settings['default'].set( JSON.stringify( css ) );
             control.preview( data );
 
         },
 
         preview: function( settings ){
             var frame = jQuery("#customize-preview iframe").contents();
-            console.log( settings );
+            //console.log( settings );
             if ( settings.font_url ) {
                 var id = 'google-font-' + settings.font_id;
                 if ( jQuery( '#'+id ).length > 0 ){
@@ -224,9 +241,10 @@
             // font_weights
             var control = this, output = '';
 
+            //console.log( font_id );
             output = '<option value="">' + control.params.labels.option_default + '</option>';
 
-            if ( typeof font_id !== 'undefined' && font_id !== '' ) {
+            if ( typeof window.typographyWebfonts[ font_id ] !== 'undefined' && font_id !== '' ) {
 
                 _.each( window.typographyWebfonts[ font_id ]['font_weights'], function (value, id) {
                     output += '<option value="' + value + '">' + control.getWeightLabel(value) + '</option>'
@@ -239,7 +257,7 @@
                 }
             }
 
-            jQuery('.typography-font-style select', control.control ).html( output  );
+            jQuery('.typography-font-style select', control.container ).html( output  );
 
         },
 

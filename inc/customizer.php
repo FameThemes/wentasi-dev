@@ -30,7 +30,7 @@ wentasi_typography_helper_auto_apply(
         'text-decoration' => 'underline',
     )
 );
-wentasi_typography_helper_auto_apply( 'test_heading_h1' );
+wentasi_typography_helper_auto_apply( 'test_heading_h1_test', 'body .ft-boxct h1' );
 
 
 
@@ -207,19 +207,14 @@ function wentasi_customize_register( $wp_customize ) {
             // This data apply for default settings only not effect on font-end
             'default' => json_encode(
                 array(
-                    'css' => array(
-                        'font-family'     => '',
-                        'color'           => '',
-                        'font-style'      => '',
-                        'font-size'       => '',
-                        'line-height'     => '',
-                        'letter-spacing'  => '',
-                        'text-transform'  => '',
-                        'text-decoration' => '',
-                    ),
-                    'css_selector'  => '',
-                    'font_id'       => '',
-                    'style'         => '',
+                    'font-family'     => '',
+                    'color'           => '',
+                    'font-style'      => '',
+                    'font-size'       => '',
+                    'line-height'     => '',
+                    'letter-spacing'  => '',
+                    'text-transform'  => '',
+                    'text-decoration' => '',
                )
             ),
             'sanitize_callback' => 'wentasi_sanitize_typography_field',
@@ -248,7 +243,7 @@ function wentasi_customize_register( $wp_customize ) {
 
 
     $wp_customize->add_setting(
-        'test_heading_h1',
+        'test_heading_h1_test',
         array(
             'sanitize_callback' => 'wentasi_sanitize_typography_field',
             'transport' => 'postMessage'
@@ -258,14 +253,14 @@ function wentasi_customize_register( $wp_customize ) {
     $wp_customize->add_control(
         new Wentasi_Customize_Typography_Control(
             $wp_customize,
-            'test_heading_h1',
+            'test_heading_h1_test',
             array(
                 'label'       => esc_html__( 'Heading h1', 'ctypo' ),
                 'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
                 'section'       => 'test_typography_heading',
                 'css_selector'       => 'body .ft-boxct h1', // css selector
                 'fields' => array(
-                    'font_family'     => false,
+                    'font_family'     => true,
                     'font_color'      => true,
                     'font_style'      => true,
                     'font_size'       => true,

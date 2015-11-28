@@ -16,6 +16,11 @@ function wentasi_sanitize_typography_field( $value ){
         return false;
     }
 
+    foreach( $value as $k => $v ){
+        $value[ $k ] =  sanitize_text_field( strtolower( $v ) );
+    }
+
+    /*
     $value = wp_parse_args( $value, array(
         'css'           => array(),
         'css_selector'  => '',
@@ -36,6 +41,9 @@ function wentasi_sanitize_typography_field( $value ){
     $value['style']          = sanitize_text_field( $value['style'] );
     $value['font_url']       = sanitize_text_field( $value['font_url'] );
     $value['css_selector']   = sanitize_text_field( $value['css_selector'] );
+
+
+    */
 
     $value =  array_filter( $value );
 
@@ -97,7 +105,7 @@ function wentasi_typography_get_default_fonts() {
         );
 
         // Add this font to all of the fonts
-        $id           = strtolower( str_replace( ' ', '_', $font ) );
+        $id           = sanitize_title( $font );
         $fonts[ $id ] = $atts;
     }
 
@@ -150,7 +158,7 @@ function wentasi_typography_get_google_fonts(){
 }
 
 function wentasi_typography_get_fonts(){
-    //delete_transient( 'wp_typography_fonts' ); // for debug
+    ///delete_transient( 'wp_typography_fonts' ); // for debug
     if ( false === ( $fonts = get_transient( 'wp_typography_fonts' ) ) ) {
         $fonts = array_merge( wentasi_typography_get_default_fonts(), wentasi_typography_get_google_fonts() );
         set_transient( 'wp_typography_fonts', $fonts, 24 * HOUR_IN_SECONDS );
