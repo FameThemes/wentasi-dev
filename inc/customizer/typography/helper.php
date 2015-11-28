@@ -31,8 +31,15 @@ function wentasi_typography_print_styles() {
     $css = array();
     $scheme = is_ssl() ? 'https' : 'http';
 
+    if ( ! class_exists( 'Wentasi_Customize_Typography_Control' ) ) {
+        include_once dirname( __FILE__ ).'/typography.php';
+    }
+
+    $fonts = Wentasi_Customize_Typography_Control::get_fonts();
+
     if ( ! empty( $wp_typography_auto_apply ) ) {
         foreach( $wp_typography_auto_apply as $k => $settings ) {
+
             if ( isset( $settings['data_type'] ) && $settings['data_type'] == 'option' ) {
                 $data = get_option( $k, false );
             }else {
@@ -40,32 +47,69 @@ function wentasi_typography_print_styles() {
             }
 
             $data =  json_decode( $data, true );
+
+            //var_dump( $data ); die();
+
+            if ( ( ! $data || empty( $data ) ) && $settings['default'] ) {
+                $data = array();
+                $data['css'] =  $settings['default'];
+                $data['css_selector'] =  $settings['css_selector'];
+            }
+
             if ( ! is_array( $data ) ) {
                 continue;
             }
 
-            if ( isset( $data['font_url'] ) && is_array( $data['font'] ) ) {
+            $data['css'] = wp_parse_args( $data['css'] , array(
+                'font-family'     => '',
+                'color'           => '',
+                'font-style'      => '',
+                'font-weight'      => '',
+                'font-size'       => '',
+                'line-height'     => '',
+                'letter-spacing'  => '',
+                'text-transform'  => '',
+                'text-decoration' => '',
+            ) );
 
-                if ( ! empty( $data['font'] ) ) {
-                    $google_fonts[ $data['font_id'] ] = $data['font'];
-                    if ( ! isset( $font_variants[ $data['font_id' ] ] ) || ! is_array( $font_variants[ $data['font_id' ] ] ) ) {
-                        $font_variants[ $data['font_id' ] ] = array();
-                    }
+            $data['css']  = array_filter( $data['css']  );
 
-                    if ( in_array( $data['style'], $data['font']['font_weights'] )  ) {
-                        $font_variants[ $data['font_id'] ][ $data['style'] ] = $data['style'] ;
-                    }
+            if( is_array( $settings['default']  ) ) {
+                $data['css'] = array_merge( $settings['default'], $data['css'] );
+            }
 
+            $font_id =  false;
+            if ( isset( $data['css'] ) && is_array( $data['css'] ) ) {
+                if ( isset ( $data['css']['font-family'] ) ) {
+                    $font_id = sanitize_title( $data['css']['font-family'] );
+                }
+            }
+
+            if ( $font_id != ''  && isset( $fonts[ $font_id ] ) && $fonts[ $font_id ]['font_type'] == 'google' ) {
+                $google_fonts[ $font_id ] = $fonts[ $font_id ];
+
+                if ( ! isset( $font_variants[ $font_id ] ) || ! is_array( $font_variants[ $font_id ] ) ) {
+                    $font_variants[ $font_id ] = array();
                 }
 
+                $style = '';
+                if ( $data['css']['font-weight'] ) {
+                    $style .= $data['css']['font-weight'];
+                }
 
+                if ( $data['css']['font-style'] !== '' && $data['css']['font-style']!= 'normal' ) {
+                    $style .= $data['css']['font-style'];
+                }
+
+                if ( in_array( $style, $fonts[ $font_id ]['font_weights'] )  ) {
+                    $font_variants[ $font_id ][ $style ] = $style ;
+                }
             }
 
             $css[] = wentasi_typography_css( $data['css'], array( $data['css_selector'], $settings['css_selector'] ) );
 
         }
     }
-
 
     $_fonts = array();
     $_subsets = array();
@@ -80,13 +124,14 @@ function wentasi_typography_print_styles() {
         }
     }
 
-    $url = $scheme."://fonts.googleapis.com/css?family=".join( $_fonts, '|' );
-    if( ! empty( $_subsets ) ) {
-        $_subsets = array_unique( $_subsets );
-        $url .= '&subset='.join(',', $_subsets );
+    if ( count( $_fonts ) ) {
+        $url = $scheme."://fonts.googleapis.com/css?family=".join( $_fonts, '|' );
+        if( ! empty( $_subsets ) ) {
+            $_subsets = array_unique( $_subsets );
+            $url .= '&subset='.join(',', $_subsets );
+        }
+        echo "<link id='wp-typo-google-font' href='".esc_url( $url )."' rel='stylesheet' type='text/css'>";
     }
-
-    echo "<link id='wp-typo-google-font' href='".esc_url( $url )."' rel='stylesheet' type='text/css'>";
 
     echo "\n";
     echo '<style class="wp-typography-print-styles" type="text/css">'."\n".join(" \n ", $css )."\n".'</style>';
@@ -143,12 +188,32 @@ function wentasi_typography_css( $css, $selector = array() ){
  * @param string $css_selector
  * @param string $data_type
  */
-function wentasi_typography_helper_auto_apply( $setting_key, $css_selector = '',  $data_type = 'theme_mod' ){
+/**
+ * @param $setting_key
+ * @param string $css_selector
+ * @param null $default
+ * @param string $data_type
+ *
+ *
+ * @default array(
+ *  'font-family'     => '',
+ *  'color'           => '',
+ *  'font-style'      => '',
+ *  'font-weight'     => '',
+ *  'font-size'       => '',
+ *  'line-height'     => '',
+ *  'letter-spacing'  => '',
+ *  'text-transform'  => '',
+ *  'text-decoration' => '',
+ *)
+ */
+function wentasi_typography_helper_auto_apply( $setting_key, $css_selector = '',  $default = null ,  $data_type = 'theme_mod' ){
     global $wp_typography_auto_apply;
     $wp_typography_auto_apply[ $setting_key ] = array(
         'key' => $setting_key,
         'css_selector' => $css_selector,
         'data_type' => $data_type,
+        'default' => $default
     );
 }
 

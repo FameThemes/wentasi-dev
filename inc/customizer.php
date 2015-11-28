@@ -9,10 +9,30 @@
 require get_template_directory() . '/inc/customizer/typography/helper.php';
 
 /**
+ * TEST width default data
+ *
  * Auto add style for typography settings
+ *
+ * @see wentasi_typography_helper_auto_apply
  */
-wentasi_typography_helper_auto_apply( 'test_typography' );
+wentasi_typography_helper_auto_apply(
+    'test_typography_test',
+    'body .ft-entry',
+    array(
+        'font-family'     => 'Caesar Dressing',
+        'color'           => '#73ad21',
+        'font-style'      => 'italic', // italic
+        'font-weight'     => '700',
+        'font-size'       => '18px',
+        'line-height'     => '33px',
+        'letter-spacing'  => '2px',
+        'text-transform'  => 'lowercase',
+        'text-decoration' => 'underline',
+    )
+);
 wentasi_typography_helper_auto_apply( 'test_heading_h1' );
+
+
 
 
 // Register our customizer panels, sections, settings, and controls.
@@ -181,13 +201,15 @@ function wentasi_customize_register( $wp_customize ) {
     // Add the `<p>` typography settings.
     // @todo Better sanitize_callback functions.
     $wp_customize->add_setting(
-        'test_typography_a',
+        'test_typography_test',
         array(
+
+            // This data apply for default settings only not effect on font-end
             'default' => json_encode(
                 array(
                     'css' => array(
                         'font-family'     => '',
-                        'color'      => '',
+                        'color'           => '',
                         'font-style'      => '',
                         'font-size'       => '',
                         'line-height'     => '',
@@ -208,7 +230,7 @@ function wentasi_customize_register( $wp_customize ) {
     $wp_customize->add_control(
         new Wentasi_Customize_Typography_Control(
             $wp_customize,
-            'test_typography_a',
+            'test_typography_test',
             array(
                 'label'       => esc_html__( 'Paragraph Typography', 'ctypo' ),
                 'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),

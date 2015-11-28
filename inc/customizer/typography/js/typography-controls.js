@@ -192,7 +192,7 @@
 
              var data = {
                  font_id : font_id,
-                 font : font,
+                 //font : font,
                  style : _style,
                  css_selector : control.params.css_selector,
                  css : css,
@@ -226,9 +226,9 @@
 
             output = '<option value="">' + control.params.labels.option_default + '</option>';
 
-            if ( font_id !== '' ) {
+            if ( typeof font_id !== 'undefined' && font_id !== '' ) {
 
-                _.each(window.typographyWebfonts[font_id]['font_weights'], function (value, id) {
+                _.each( window.typographyWebfonts[ font_id ]['font_weights'], function (value, id) {
                     output += '<option value="' + value + '">' + control.getWeightLabel(value) + '</option>'
                 });
 
