@@ -19,7 +19,7 @@ function wentasi_sanitize_typography_field( $value ){
     foreach( $value as $k => $v ){
         $value[ $k ] =  sanitize_text_field( strtolower( $v ) );
     }
-    
+
     $value =  array_filter( $value );
 
     return json_encode( $value );

@@ -35,7 +35,7 @@ function wentasi_typography_print_styles() {
         include_once dirname( __FILE__ ).'/typography.php';
     }
 
-    $fonts = Wentasi_Customize_Typography_Control::get_fonts();
+    $fonts = wentasi_typography_get_google_fonts();
 
     if ( ! empty( $wp_typography_auto_apply ) ) {
         foreach( $wp_typography_auto_apply as $k => $settings ) {
