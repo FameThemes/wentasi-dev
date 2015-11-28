@@ -31,7 +31,7 @@ function wentasi_typography_print_styles() {
     $css = array();
     $scheme = is_ssl() ? 'https' : 'http';
 
-    if ( ! class_exists( 'Wentasi_Customize_Typography_Control' ) ) {
+    if ( ! function_exists( 'wentasi_typography_get_fonts' ) ) {
         include_once dirname( __FILE__ ).'/typography.php';
     }
 
