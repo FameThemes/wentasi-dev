@@ -19,32 +19,7 @@ function wentasi_sanitize_typography_field( $value ){
     foreach( $value as $k => $v ){
         $value[ $k ] =  sanitize_text_field( strtolower( $v ) );
     }
-
-    /*
-    $value = wp_parse_args( $value, array(
-        'css'           => array(),
-        'css_selector'  => '',
-        'font_id'       => '',
-        'font'          => array(),
-        'style'         => '',
-        'font_url'      => '',
-    ) );
-
-    if ( is_array( $value['css'] )  ) {
-        foreach( $value['css'] as $k => $v ){
-            $value['css'][ $k ] =  sanitize_text_field( strtolower( $v ) );
-        }
-        $value['css'] = array_filter( $value['css'] );
-    }
-
-    $value['font_id']        = sanitize_text_field( $value['font_id'] );
-    $value['style']          = sanitize_text_field( $value['style'] );
-    $value['font_url']       = sanitize_text_field( $value['font_url'] );
-    $value['css_selector']   = sanitize_text_field( $value['css_selector'] );
-
-
-    */
-
+    
     $value =  array_filter( $value );
 
     return json_encode( $value );
