@@ -26,6 +26,7 @@ add_action( 'wp_head', 'wentasi_typography_print_styles', 99 );
 function wentasi_typography_print_styles() {
 
     global $wp_typography_auto_apply;
+
     $google_fonts = array();
     $font_variants = array();
     $css = array();

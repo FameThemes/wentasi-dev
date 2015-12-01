@@ -19,7 +19,6 @@ function wentasi_sanitize_repeatable_data_field( $input , $setting ){
     $data = $data['_items'];
 
     foreach( $data as $i => $item_data ){
-
         foreach( $item_data as $id => $value ){
 
             if ( isset( $fields[ $id ] ) ){
@@ -38,6 +37,7 @@ function wentasi_sanitize_repeatable_data_field( $input , $setting ){
                         $data[ $i ][ $id ] =  wentasi_sanitize_checkbox( $value );
                         break;
                     case 'select':
+                        //var_dump( $fields[ $id ]['options'] );
                         $data[ $i ][ $id ] = '';
                         if ( is_array( $fields[ $id ]['options'] ) && ! empty( $fields[ $id ]['options'] ) ){
                             // if is multiple choices
@@ -86,7 +86,6 @@ function wentasi_sanitize_repeatable_data_field( $input , $setting ){
             }
 
         }
-
     }
 
     return json_encode( $data );

@@ -19,9 +19,9 @@ wentasi_typography_helper_auto_apply(
     'test_typography_test',
     'body .ft-entry',
     array(
-        'font-family'     => 'Caesar Dressing',
+        'font-family'     => 'Lato',
         'color'           => '#73ad21',
-        'font-style'      => 'italic', // italic
+        'font-style'      => '300', // italic
         'font-weight'     => '700',
         'font-size'       => '18px',
         'line-height'     => '33px',
@@ -30,8 +30,19 @@ wentasi_typography_helper_auto_apply(
         'text-decoration' => 'underline',
     )
 );
-wentasi_typography_helper_auto_apply( 'heading_h1_test', 'body .ft-boxct h1' );
-
+wentasi_typography_helper_auto_apply( 'heading_h1_test', 'body .ft-boxct h1',
+    array(
+        'font-family'     => 'Caesar Dressing',
+        'color'           => '#73ad21',
+        //'font-style'      => 'italic', //
+        'font-weight'     => '700', // On available if font-style set
+        //'font-size'       => '18px',
+        //'line-height'     => '33px',
+        //'letter-spacing'  => '2px',
+        'text-transform'  => 'lowercase',
+        //'text-decoration' => 'underline',
+    )
+);
 
 
 
@@ -91,9 +102,17 @@ function wentasi_customize_register( $wp_customize ) {
         ),
         //'sanitize_callback' => 'sanitize_repeatable_data_field',
         'sanitize_callback' => 'wentasi_sanitize_repeatable_data_field',
-        'transport' => 'postMessage', // refresh or postMessage
+        'transport' => 'refresh', // refresh or postMessage
     ) );
 
+    $pages = get_pages( );
+
+    $option_pages = array();
+    $option_pages[ 0 ] = __( 'Select Page', 'domain' );
+
+    foreach ( $pages as $p ) {
+        $option_pages[ $p->ID ] =  $p->post_title;
+    }
 
     $wp_customize->add_control(
         new Wentasi_Customize_Repeatable_Control(
@@ -104,7 +123,7 @@ function wentasi_customize_register( $wp_customize ) {
                 'description'   => 'dsadadasdasas',
                 'section'       => 'test_section_repeatable',
                 'live_title_id' => 'id_name_1', // apply for unput text and textarea only
-                'title_format'  => __('Item: [live_title]', 'wentasi'),
+                'title_format'  => __('Abc: ', 'wentasi'), // [live_title]
 
                 'fields'    => array(
                     'id_name_1' => array(
@@ -135,6 +154,15 @@ function wentasi_customize_register( $wp_customize ) {
                         ),
                         'desc' =>'this is description text',
                     ),
+                    'id_page'    => array(
+                        'title'=>'Select Page',
+                        'type'=>'select',
+                        'multiple'=> false, // false
+                        'desc' =>'this is description text',
+                        'options' => $option_pages,
+                        //'default'=> 'option_1',
+                    ),
+
                     'id_name_4'    => array(
                         'title'=>'select title',
                         'type'=>'select',
@@ -217,6 +245,7 @@ function wentasi_customize_register( $wp_customize ) {
                 'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
                 'section'       => 'test_typography_section',
                 'css_selector'       => 'body .ft-entry', // css selector
+                ///'fields'
             )
         )
     );

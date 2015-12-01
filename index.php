@@ -10,9 +10,12 @@
     print_r( json_decode( get_theme_mod( 'new_repeatable_id' ), true ) );
     echo '</pre>';
 
+    /*
+
     echo '<pre>';
     print_r( json_decode( get_theme_mod( 'test_typography' ), true ) );
     echo '</pre>';
+    */
 
 
     if (!have_posts()) : ?>

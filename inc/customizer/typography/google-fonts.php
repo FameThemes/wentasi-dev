@@ -1,3 +1,5 @@
+<?php
+$google_fonts = '
 {
   "kind": "webfonts#webfontList",
   "items": [
@@ -13600,3 +13602,7 @@
     }
   ]
 }
+
+';
+
+return json_decode( $google_fonts, true );

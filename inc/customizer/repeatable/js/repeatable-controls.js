@@ -9,7 +9,8 @@ var RepeatableCustomize = function (  control  ){
     that.getData = function ( ){
         var f = $( '.form-data', container );
         var data =  $( 'input, textarea, select', f ).serialize();
-        return  JSON.stringify( { data: data, fields: default_data } ) ;
+        //console.log( data );
+        return  JSON.stringify( data ) ;
     };
 
     that.rename = function(){

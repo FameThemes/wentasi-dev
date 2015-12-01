@@ -26,25 +26,6 @@ function wentasi_sanitize_typography_field( $value ){
 }
 
 
-function wentasi_typography_get_url( $file = '' ){
-    if ( ! $file ) {
-        $file = __FILE__;
-    }
-    if ( 'WIN' === strtoupper( substr( PHP_OS, 0, 3 ) ) ) {
-        // Windows
-        $content_dir = str_replace( '/', DIRECTORY_SEPARATOR, WP_CONTENT_DIR );
-        $content_url = str_replace( $content_dir, WP_CONTENT_URL, trailingslashit( dirname( $file  ) ) );
-        $url = str_replace( DIRECTORY_SEPARATOR, '/', $content_url );
-    } else {
-        $url = str_replace(
-            array( WP_CONTENT_DIR, WP_PLUGIN_DIR ),
-            array( WP_CONTENT_URL, WP_PLUGIN_URL ),
-            trailingslashit( dirname( $file  ) )
-        );
-    }
-    return set_url_scheme( $url );
-}
-
 
 function wentasi_typography_get_default_fonts() {
 
@@ -72,11 +53,11 @@ function wentasi_typography_get_default_fonts() {
 
         // Create a font array containing it's properties and add it to the $fonts array
         $atts = array(
-            'name'         => $font,
-            'font_type'    => 'default',
-            'font_weights' => $attributes['weights'],
-            'subsets'      => array(),
-            'url'         => '',
+            'name'          => $font,
+            'font_type'     => 'default',
+            'font_weights'  => $attributes['weights'],
+            'subsets'       => array(),
+            'url'           => '',
         );
 
         // Add this font to all of the fonts
@@ -97,35 +78,32 @@ function wentasi_typography_get_google_fonts(){
      * repository as a last resort.
      *
      */
-    $fonts_from_repo = wp_remote_fopen( wentasi_typography_get_url(). "google-fonts.json", array( 'sslverify' => false ) );
-    $json            = $fonts_from_repo;
-
-    $font_output = json_decode( $json, true );
+    $font_output  = include dirname( __FILE__ ).'/google-fonts.php';
 
     $fonts = array();
 
     $scheme = is_ssl() ? 'https' : 'http';
     if ( is_array( $font_output ) ) {
-        foreach ($font_output['items'] as $item) {
+        foreach ( $font_output['items'] as $item ) {
 
             $name = str_replace(' ', '+', $item['family']);
 
             $url = $scheme . "://fonts.googleapis.com/css?family={$name}:" . join($item['variants'], ',');
-            if (isset($item['subsets'])) {
+            if ( isset( $item['subsets'] ) ) {
                 $url .= '&subset=' . join(',', $item['subsets']);
             }
 
             $atts = array(
-                'name' => $item['family'],
-                'category' => $item['category'],
-                'font_type' => 'google',
-                'font_weights' => $item['variants'],
-                'subsets' => $item['subsets'],
-                'url' => $url
+                'name'          => $item['family'],
+                'category'      => $item['category'],
+                'font_type'     => 'google',
+                'font_weights'  => $item['variants'],
+                'subsets'       => $item['subsets'],
+                'url'           => $url
             );
 
             // Add this font to the fonts array
-            $id = sanitize_title($item['family']);
+            $id = sanitize_title( $item['family'] );
             $fonts[$id] = $atts;
         }
     }
@@ -134,7 +112,7 @@ function wentasi_typography_get_google_fonts(){
 }
 
 function wentasi_typography_get_fonts(){
-    ///delete_transient( 'wp_typography_fonts' ); // for debug
+    delete_transient( 'wp_typography_fonts' ); // for debug
     if ( false === ( $fonts = get_transient( 'wp_typography_fonts' ) ) ) {
         $fonts = array_merge( wentasi_typography_get_default_fonts(), wentasi_typography_get_google_fonts() );
         set_transient( 'wp_typography_fonts', $fonts, 24 * HOUR_IN_SECONDS );
@@ -204,15 +182,15 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
             $this->l10n = wp_parse_args(
                 $this->l10n,
                 array(
-                    'family'      => esc_html__( 'Font Family', 'ft' ),
-                    'option_default'      => esc_html__( 'Default', 'ft' ),
-                    'size'        => esc_html__( 'Font Size (px)',   'ft' ),
-                    'style'       => esc_html__( 'Font Weight/Style',  'ft' ),
-                    'line_height' => esc_html__( 'Line Height (px)', 'ft' ),
-                    'text_decoration' => esc_html__( 'Text Decoration', 'ft' ),
-                    'letter_spacing' => esc_html__( 'Letter Spacing (px)', 'ft' ),
-                    'text_transform' => esc_html__( 'Text Transform', 'ft' ),
-                    'color' => esc_html__( 'Color', 'ft' ),
+                    'family'            => esc_html__( 'Font Family', 'ft' ),
+                    'option_default'    => esc_html__( 'Default', 'ft' ),
+                    'size'              => esc_html__( 'Font Size (px)',   'ft' ),
+                    'style'             => esc_html__( 'Font Weight/Style',  'ft' ),
+                    'line_height'       => esc_html__( 'Line Height (px)', 'ft' ),
+                    'text_decoration'   => esc_html__( 'Text Decoration', 'ft' ),
+                    'letter_spacing'    => esc_html__( 'Letter Spacing (px)', 'ft' ),
+                    'text_transform'    => esc_html__( 'Text Transform', 'ft' ),
+                    'color'             => esc_html__( 'Color', 'ft' ),
                 )
             );
 
@@ -274,12 +252,8 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
          * @param string $file full path of current file in that dir
          * @return string
          */
-        public static function get_url( $file = '' ){
-            if ( ! $file ) {
-                $file = __FILE__;
-            }
-
-            return wentasi_typography_get_url( $file );
+        public static function get_url( ){
+            return  get_template_directory_uri().'/inc/customizer/typography/';
         }
 
         public static function get_default_fonts() {
@@ -363,7 +337,6 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
         }
 
 
-
         /**
          * Underscore JS template to handle the control's output.
          *
@@ -373,7 +346,6 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
          */
         public function content_template() {
 
-            //  <# console.log( data ) #>
             ?>
             <div class="typography-wrap">
 
@@ -385,7 +357,6 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
                    <# if ( data.description ) { #>
                        <span class="description customize-control-description">{{{ data.description }}}</span>
                    <# } #>
-
                </div>
 
                 <div class="typography-settings">
