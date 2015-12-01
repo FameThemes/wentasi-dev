@@ -260,7 +260,6 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
             return wentasi_typography_get_default_fonts();
         }
 
-
         /**
          * Returns the available fonts.  Fonts should have available weights, styles, and subsets.
          *
@@ -306,26 +305,26 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
 
             wp_localize_script('jquery', 'typographyWebfonts',  $this->get_fonts() );
             wp_localize_script('jquery', 'fontStyleLabels', array(
-                '100' => __( 'Thin 100', 'ft' ),
+                '100'       => __( 'Thin 100', 'ft' ),
                 '100italic' => __( 'Thin 100 Italic', 'ft' ),
-                '200' => __( 'Extra-Light 200' ),
+                '200'       => __( 'Extra-Light 200' ),
                 '200italic' => __( 'Extra-Light 200 Italic', 'ft' ),
-                '300' => __( 'Light 300' ),
+                '300'       => __( 'Light 300' ),
                 '300italic' => __( 'Light 300 Italic', 'ft' ),
-                '400' => __( 'Normal 400' ),
+                '400'       => __( 'Normal 400' ),
                 '400italic' => __( 'Normal 400 Italic', 'ft' ),
-                'regular' => __( 'Normal' ),
-                'italic' => __( 'Normal Italic', 'ft' ),
-                '500' => __( 'Medium 500' ),
+                'regular'   => __( 'Normal' ),
+                'italic'    => __( 'Normal Italic', 'ft' ),
+                '500'       => __( 'Medium 500' ),
                 '500italic' => __( 'Medium 500 Italic', 'ft' ),
-                '600' => __( 'Semi-Bold 600' ),
+                '600'       => __( 'Semi-Bold 600' ),
                 '600italic' => __( 'Semi-Bold 600 Italic', 'ft' ),
-                '700' => __( 'Bold 700', 'ft' ),
+                '700'       => __( 'Bold 700', 'ft' ),
                 '700italic' => __( 'Bold 700 Italic', 'ft' ),
-                '800' => __( ' Extra-Bold 800' ),
+                '800'       => __( ' Extra-Bold 800' ),
                 '800italic' => __( ' Extra-Bold 800 Italic', 'ft' ),
                 '700italic' => __( 'Bold 700 Italic', 'ft' ),
-                '900' => __( 'Ultra-Bold 900', 'ft' ),
+                '900'       => __( 'Ultra-Bold 900', 'ft' ),
                 '900italic' => __( 'Ultra-Bold 900 Italic', 'ft' ),
             ) );
 
