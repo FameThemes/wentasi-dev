@@ -58,25 +58,23 @@ function wentasi_typography_print_styles() {
                 continue;
             }
 
-            $data = wp_parse_args( $data , array(
-                'font-family'     => '',
-                'color'           => '',
-                'font-style'      => '',
-                'font-weight'      => '',
-                'font-size'       => '',
-                'line-height'     => '',
-                'letter-spacing'  => '',
-                'text-transform'  => '',
-                'text-decoration' => '',
-            ) );
-
             $data  = array_filter( $data  );
 
             if( empty( $data ) && is_array( $settings['default']  ) ) {
                 $data = array_merge( $settings['default'], $data );
             }
 
-            //var_dump( $data );
+            $data = wp_parse_args( $data , array(
+                'font-family'     => '',
+                'color'           => '',
+                'font-style'      => '',
+                'font-weight'     => '',
+                'font-size'       => '',
+                'line-height'     => '',
+                'letter-spacing'  => '',
+                'text-transform'  => '',
+                'text-decoration' => '',
+            ) );
 
             $font_id =  false;
             if ( isset( $data ) && is_array( $data ) ) {

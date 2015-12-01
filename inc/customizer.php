@@ -30,7 +30,7 @@ wentasi_typography_helper_auto_apply(
         'text-decoration' => 'underline',
     )
 );
-wentasi_typography_helper_auto_apply( 'test_heading_h1_test', 'body .ft-boxct h1' );
+wentasi_typography_helper_auto_apply( 'heading_h1_test', 'body .ft-boxct h1' );
 
 
 
@@ -203,20 +203,6 @@ function wentasi_customize_register( $wp_customize ) {
     $wp_customize->add_setting(
         'test_typography_test',
         array(
-
-            // This data apply for default settings only not effect on font-end
-            'default' => json_encode(
-                array(
-                    'font-family'     => '',
-                    'color'           => '',
-                    'font-style'      => '',
-                    'font-size'       => '',
-                    'line-height'     => '',
-                    'letter-spacing'  => '',
-                    'text-transform'  => '',
-                    'text-decoration' => '',
-               )
-            ),
             'sanitize_callback' => 'wentasi_sanitize_typography_field',
             'transport' => 'postMessage'
         )
@@ -243,7 +229,7 @@ function wentasi_customize_register( $wp_customize ) {
 
 
     $wp_customize->add_setting(
-        'test_heading_h1_test',
+        'heading_h1_test',
         array(
             'sanitize_callback' => 'wentasi_sanitize_typography_field',
             'transport' => 'postMessage'
@@ -253,21 +239,23 @@ function wentasi_customize_register( $wp_customize ) {
     $wp_customize->add_control(
         new Wentasi_Customize_Typography_Control(
             $wp_customize,
-            'test_heading_h1_test',
+            'heading_h1_test',
             array(
                 'label'       => esc_html__( 'Heading h1', 'ctypo' ),
                 'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
                 'section'       => 'test_typography_heading',
-                'css_selector'       => 'body .ft-boxct h1', // css selector
+                'css_selector'       => 'body .ft-boxct h1', // css selector for live preview
+                // Setting for fields and default values
                 'fields' => array(
-                    'font_family'     => true,
-                    'font_color'      => true,
-                    'font_style'      => true,
-                    'font_size'       => true,
-                    'line_height'     => false,
-                    'letter_spacing'  => false,
-                    'text_transform'  => false,
-                    'text_decoration' => false,
+                    'font-family'     => 'Caesar Dressing',
+                    'color'           => '#73ad21',
+                    //'font-style'      => 'italic', //
+                    'font-weight'     => '700', // On available if font-style set
+                    //'font-size'       => '18px',
+                    //'line-height'     => '33px',
+                    //'letter-spacing'  => '2px',
+                    'text-transform'  => 'lowercase',
+                    //'text-decoration' => 'underline',
                 )
             )
         )

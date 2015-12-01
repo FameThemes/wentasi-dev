@@ -17,7 +17,7 @@ function wentasi_sanitize_typography_field( $value ){
     }
 
     foreach( $value as $k => $v ){
-        $value[ $k ] =  sanitize_text_field( strtolower( $v ) );
+        $value[ strtolower( $k ) ] =  sanitize_text_field( $v );
     }
 
     $value =  array_filter( $value );
@@ -105,28 +105,29 @@ function wentasi_typography_get_google_fonts(){
     $fonts = array();
 
     $scheme = is_ssl() ? 'https' : 'http';
+    if ( is_array( $font_output ) ) {
+        foreach ($font_output['items'] as $item) {
 
-    foreach ( $font_output['items'] as $item ) {
+            $name = str_replace(' ', '+', $item['family']);
 
-        $name = str_replace( ' ', '+', $item['family'] );
+            $url = $scheme . "://fonts.googleapis.com/css?family={$name}:" . join($item['variants'], ',');
+            if (isset($item['subsets'])) {
+                $url .= '&subset=' . join(',', $item['subsets']);
+            }
 
-        $url = $scheme."://fonts.googleapis.com/css?family={$name}:".join( $item['variants'], ',' );
-        if ( isset( $item['subsets'] ) ){
-            $url .= '&subset='.join(',', $item['subsets'] );
+            $atts = array(
+                'name' => $item['family'],
+                'category' => $item['category'],
+                'font_type' => 'google',
+                'font_weights' => $item['variants'],
+                'subsets' => $item['subsets'],
+                'url' => $url
+            );
+
+            // Add this font to the fonts array
+            $id = sanitize_title($item['family']);
+            $fonts[$id] = $atts;
         }
-
-        $atts = array(
-            'name'         => $item['family'],
-            'category'     => $item['category'],
-            'font_type'    => 'google',
-            'font_weights' => $item['variants'],
-            'subsets'      => $item['subsets'],
-            'url'          => $url
-        );
-
-        // Add this font to the fonts array
-        $id           = sanitize_title( $item['family'] );
-        $fonts[ $id ] = $atts;
     }
 
     return apply_filters( 'wentasi_typography_get_google_fonts', $fonts );
@@ -220,16 +221,49 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
                 $args['fields'] = array();
             }
 
-            $this->fields = wp_parse_args( $args['fields'], array(
-                'font_family'     => true,
-                'font_color'      => true,
-                'font_style'      => true,
-                'font_size'       => true,
-                'line_height'     => true,
-                'letter_spacing'  => true,
-                'text_transform'  => true,
-                'text_decoration' => true,
+            $this->fields = $args['fields'];
+
+        }
+
+        /**
+         * Add custom parameters to pass to the JS via JSON.
+         *
+         * @since  1.0.0
+         * @access public
+         * @return void
+         */
+        public function to_json() {
+            parent::to_json();
+
+            $value = $this->value();
+
+            $fields = array();
+            foreach( $this->fields as $k => $value ){
+                $fields[ str_replace( '-', '_', $k ) ] = true;
+            }
+
+            // Default value
+            if ( ! is_array( $value ) ){
+                $value = $this->fields;
+            }
+
+            $fields = wp_parse_args( $fields, array(
+                'font_family'     => false,
+                'color'      => false,
+                'font_style'      => false,
+                'font_size'       => false,
+                'line_height'     => false,
+                'letter_spacing'  => false,
+                'text_transform'  => false,
+                'text_decoration' => false,
             ) );
+
+            // Loop through each of the settings and set up the data for it.
+            //$this->json['value']         = is_array( $this->value() ) ?  json_encode( $this->value() ) :  $this->value() ;
+            $this->json['value']         = json_encode( $value ) ;
+            $this->json['labels']        = $this->l10n;
+            $this->json['css_selector']  = $this->css_selector;
+            $this->json['fields']        = $fields;
 
         }
 
@@ -328,23 +362,7 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
 
         }
 
-        /**
-         * Add custom parameters to pass to the JS via JSON.
-         *
-         * @since  1.0.0
-         * @access public
-         * @return void
-         */
-        public function to_json() {
-            parent::to_json();
 
-            // Loop through each of the settings and set up the data for it.
-            $this->json['value']         = is_array( $this->value() ) ?  json_encode( $this->value() ) :  $this->value() ;
-            $this->json['labels']        = $this->l10n;
-            $this->json['css_selector']  = $this->css_selector;
-            $this->json['fields']        = $this->fields;
-
-        }
 
         /**
          * Underscore JS template to handle the control's output.
@@ -434,7 +452,7 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
                         </li>
                         <# } #>
 
-                        <# if ( data.fields.font_color ) { #>
+                        <# if ( data.fields.color ) { #>
                         <li class="typography-text-transform clr">
                             <span class="customize-control-title">{{ data.labels.color }}</span>
                             <input type="text" class="text-color" />

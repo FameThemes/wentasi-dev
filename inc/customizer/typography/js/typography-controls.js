@@ -122,7 +122,7 @@
             }
 
             // text Color
-            if ( control.params.fields.font_color ) {
+            if ( control.params.fields.color ) {
                 jQuery('.text-color', control.container).val(values.color);
 
                 jQuery('.text-color', control.container).wpColorPicker({
@@ -168,7 +168,7 @@
             if ( control.params.fields.text_transform ) {
                 css['text-transform'] = jQuery('.text-transform', control.container).val() || '';
             }
-            if ( control.params.fields.font_color ) {
+            if ( control.params.fields.color ) {
                 css['color'] = jQuery('.text-color', control.container).val() || '';
             }
 
