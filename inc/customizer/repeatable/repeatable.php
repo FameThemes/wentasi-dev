@@ -15,15 +15,12 @@ function wentasi_sanitize_repeatable_data_field( $input , $setting ){
     if ( ! isset( $data['_items'] ) ) {
         return  false;
     }
-
     $data = $data['_items'];
 
     foreach( $data as $i => $item_data ){
-
         foreach( $item_data as $id => $value ){
 
             if ( isset( $fields[ $id ] ) ){
-
                 switch( strtolower( $fields[ $id ]['type'] ) ) {
                     case 'text':
                         $data[ $i ][ $id ] = sanitize_text_field( $value );
@@ -66,12 +63,12 @@ function wentasi_sanitize_repeatable_data_field( $input , $setting ){
                                 'id'=> false
                             )
                         );
-                        $value['id'] = intval( $value['id'] );
-
+                        $value['id'] = absint( $value['id'] );
                         $data[ $i ][ $id ]['url'] = sanitize_text_field( $value['url'] );
 
-                        if ( wp_get_attachment_image( $value['id'] ) ) {
-                            $data[ $i ][ $id ]['id']  = $value['id'];
+                        if ( $url = wp_get_attachment_url( $value['id'] ) ) {
+                            $data[ $i ][ $id ]['id']   = $value['id'];
+                            $data[ $i ][ $id ]['url']  = $url;
                         } else {
                             $data[ $i ][ $id ]['id'] = '';
                         }
