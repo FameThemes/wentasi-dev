@@ -21,7 +21,6 @@ function wentasi_sanitize_typography_field( $value ){
     }
 
     $value =  array_filter( $value );
-
     return json_encode( $value );
 }
 
@@ -227,7 +226,7 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
 
             $fields = wp_parse_args( $fields, array(
                 'font_family'     => false,
-                'color'      => false,
+                'color'           => false,
                 'font_style'      => false,
                 'font_size'       => false,
                 'line_height'     => false,
@@ -323,7 +322,6 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
                 '700italic' => __( 'Bold 700 Italic', 'ft' ),
                 '800'       => __( ' Extra-Bold 800' ),
                 '800italic' => __( ' Extra-Bold 800 Italic', 'ft' ),
-                '700italic' => __( 'Bold 700 Italic', 'ft' ),
                 '900'       => __( 'Ultra-Bold 900', 'ft' ),
                 '900italic' => __( 'Ultra-Bold 900 Italic', 'ft' ),
             ) );
@@ -437,4 +435,3 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
 
     }
 }
-
