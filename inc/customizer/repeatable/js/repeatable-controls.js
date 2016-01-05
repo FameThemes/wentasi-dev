@@ -4,14 +4,13 @@ var RepeatableCustomize = function (  control  ){
     var $ = jQuery;
     var container =  control.container;
     var default_data =  control.params.fields;
-    var values = control.params.value;
-
-    console.log( control.params );
+    var values = JSON.parse( control.params.value ) ;
 
     that.getData = function ( ){
         var f = $( '.form-data', container );
         var data =  $( 'input, textarea, select', f ).serialize();
-        return data;
+        //console.log( data );
+        return  JSON.stringify( data ) ;
     };
 
     that.rename = function(){
@@ -63,10 +62,14 @@ var RepeatableCustomize = function (  control  ){
 
                 $( this).hide();
 
+                $('.upload-button', _item ).text( $('.upload-button', _item ).attr( 'data-add-txt' ) );
+                $( '.image_id', _item).trigger( 'change' );
+
             } );
 
             // when upload item
             $('.upload-button', _item ).on('click', function () {
+                var btn = $( this );
 
                 frame.on('select', function () {
                     // Grab our attachment selection and construct a JSON representation of the model.
@@ -75,13 +78,7 @@ var RepeatableCustomize = function (  control  ){
 
                     $( '.image_id', _item ).val(media_attachment.id);
                     var preview, img_url;
-                    try {
-                        if (typeof (media_attachment.sizes.thumbnail ) !== 'undefined') {
-                            img_url = media_attachment.sizes.thumbnail.url;
-                        }
-                    } catch (e) {
-                        img_url = media_attachment.url;
-                    }
+                    img_url = media_attachment.url;
 
                     $( '.current', _item ).removeClass( 'hide').addClass( 'show' );
 
@@ -90,8 +87,10 @@ var RepeatableCustomize = function (  control  ){
                     //$(' img', _item).remove();
                     $( '.thumbnail-image', _item ).html( preview );
                     $( '.remove-button', _item).show();
-
                     $( '.image_id', _item).trigger( 'change' );
+
+                    btn.text( btn.attr( 'data-change-txt' ) );
+
                 });
 
                 frame.open();
@@ -114,7 +113,7 @@ var RepeatableCustomize = function (  control  ){
 
     that.actions = function( $context ){
 
-        $( '.widget .widget-action, .widget .repeat-control-close' , $context ).click( function( e ){
+        $( '.widget .widget-action, .widget .repeat-control-close, .widget-title' , $context ).click( function( e ){
             //console.log( 'clicked' );
             var p =  $('.widget', $context );
 
@@ -230,7 +229,8 @@ var RepeatableCustomize = function (  control  ){
 
     $( ".list-repeatable", container ).sortable({
         handle: ".widget-title",
-        containment: "parent",
+        containment: ".customize-control-repeatable",
+       /// placeholder: "sortable-placeholder",
         update: function( event, ui ) {
             that.rename();
             that.updateValue();

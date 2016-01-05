@@ -1,39 +1,97 @@
 <?php
 
-define( 'REPEATABLE_CONTROL_URL', get_template_directory_uri().'/inc/customizer/repeatable/' );
-//require_once dirname( __FILE__ ) . '/customize/control-repeatable.php';
+/**
+ * Sanitize repeatable data
+ *
+ * @param $input
+ * @param $setting object $wp_customize
+ * @return bool|mixed|string|void
+ */
+function wentasi_sanitize_repeatable_data_field( $input , $setting ){
+    $control = $setting->manager->get_control( $setting->id );
 
-function sanitize_repeatable_data_field_deep( $data ){
-
-    if ( $data && is_array( $data ) ){
-        foreach ( $data as $k => $v ){
-            if ( is_array( $v ) ) {
-                $data[ $k ] = sanitize_repeatable_data_field_deep ( $v );
-            } else {
-                $data[ $k ] =  wp_kses_post( $v ) ;
-            }
-        }
-    }
-
-    return $data;
-}
-
-function sanitize_repeatable_data_field( $input ){
-
-    //$data = json_decode( stripslashes_deep( $input ), true );
+    $fields = $control->fields;
+    $input = json_decode( $input , true );
     $data = wp_parse_args( $input, array() );
 
-    if ( $data && is_array( $data ) ){
-        $data =  sanitize_repeatable_data_field_deep( $data );
+    if ( ! is_array( $data ) ) {
+        return false;
+    }
+    if ( ! isset( $data['_items'] ) ) {
+        return  false;
+    }
+    $data = $data['_items'];
 
-        if ( isset( $data['_items'] ) ){
-            return $data['_items'];
-        } else{
-            return $data;
+    foreach( $data as $i => $item_data ){
+        foreach( $item_data as $id => $value ){
+
+            if ( isset( $fields[ $id ] ) ){
+                switch( strtolower( $fields[ $id ]['type'] ) ) {
+                    case 'text':
+                        $data[ $i ][ $id ] = sanitize_text_field( $value );
+                        break;
+                    case 'textarea':
+                        $data[ $i ][ $id ] = wp_kses_post( $value );
+                        break;
+                    case 'color':
+                        $data[ $i ][ $id ] = sanitize_hex_color_no_hash( $value );
+                        break;
+                    case 'checkbox':
+                        $data[ $i ][ $id ] =  wentasi_sanitize_checkbox( $value );
+                        break;
+                    case 'select':
+                        $data[ $i ][ $id ] = '';
+                        if ( is_array( $fields[ $id ]['options'] ) && ! empty( $fields[ $id ]['options'] ) ){
+                            // if is multiple choices
+                            if ( is_array( $value ) ) {
+                                foreach ( $value as $k => $v ) {
+                                    if ( isset( $fields[ $id ]['options'][ $v ] ) ) {
+                                        $value [ $k ] =  $v;
+                                    }
+                                }
+                                $data[ $i ][ $id ] = $value;
+                            }else { // is single choice
+                                if (  isset( $fields[ $id ]['options'][ $value ] ) ) {
+                                    $data[ $i ][ $id ] = $value;
+                                }
+                            }
+                        }
+
+                        break;
+                    case 'radio':
+                        $data[ $i ][ $id ] = sanitize_text_field( $value );
+                        break;
+                    case 'media':
+                        $value = wp_parse_args( $value,
+                            array(
+                                'url' => '',
+                                'id'=> false
+                            )
+                        );
+                        $value['id'] = absint( $value['id'] );
+                        $data[ $i ][ $id ]['url'] = sanitize_text_field( $value['url'] );
+
+                        if ( $url = wp_get_attachment_url( $value['id'] ) ) {
+                            $data[ $i ][ $id ]['id']   = $value['id'];
+                            $data[ $i ][ $id ]['url']  = $url;
+                        } else {
+                            $data[ $i ][ $id ]['id'] = '';
+                        }
+
+                        break;
+                    default:
+                        $data[ $i ][ $id ] = wp_kses_post( $value );
+                }
+
+            }else {
+                $data[ $i ][ $id ] = wp_kses_post( $value );
+            }
+
         }
+
     }
 
-    return $input;
+    return json_encode( $data );
 }
 
 
@@ -43,7 +101,7 @@ function sanitize_repeatable_data_field( $input ){
  * @since  1.0.0
  * @access public
  */
-class WP_Customize_Repeatable_Control extends WP_Customize_Control {
+class Wentasi_Customize_Repeatable_Control extends WP_Customize_Control {
 
     /**
      * The type of customize control being rendered.
@@ -76,26 +134,51 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
                 } else {
                     $args['fields'][ $key ]['value'] = '';
                 }
-
             }
         }
 
         $this->fields = $args['fields'];
-        $this->live_title_id = $args['live_title_id'];
+        $this->live_title_id = isset( $args['live_title_id'] ) ? $args['live_title_id'] : false;
         if ( isset( $args['title_format'] ) && $args['title_format'] != '' ) {
             $this->title_format = $args['title_format'];
+        } else {
+            $this->title_format = '';
         }
-
 
     }
 
     public function to_json() {
         parent::to_json();
         $this->json['live_title_id'] = $this->live_title_id;
-        $this->json['title_format'] = $this->title_format;
-        $this->json['value']   = $this->value();
-        $this->json['fields'] = $this->fields;
+        $this->json['title_format']  = $this->title_format;
+        $this->json['value']         = $this->value();
+        $this->json['fields']        = $this->fields;
 
+    }
+
+    /**
+     * Get url of any dir
+     *
+     * @param string $file full path of current file in that dir
+     * @return string
+     */
+    public static function get_url( $file = '' ){
+        if ( ! $file ) {
+            $file = __FILE__;
+        }
+        if ( 'WIN' === strtoupper( substr( PHP_OS, 0, 3 ) ) ) {
+            // Windows
+            $content_dir = str_replace( '/', DIRECTORY_SEPARATOR, WP_CONTENT_DIR );
+            $content_url = str_replace( $content_dir, WP_CONTENT_URL, trailingslashit( dirname( $file  ) ) );
+            $url = str_replace( DIRECTORY_SEPARATOR, '/', $content_url );
+        } else {
+            $url = str_replace(
+                array( WP_CONTENT_DIR, WP_PLUGIN_DIR ),
+                array( WP_CONTENT_URL, WP_PLUGIN_URL ),
+                trailingslashit( dirname( $file  ) )
+            );
+        }
+        return set_url_scheme( $url );
     }
 
 
@@ -108,14 +191,16 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
      */
     public function enqueue() {
 
+        $url = self::get_url();
+
         wp_enqueue_media();
 
         wp_enqueue_script( 'jquery-ui-sortable' );
         wp_enqueue_script( 'wp-color-picker' );
         wp_enqueue_style( 'wp-color-picker' );
 
-        wp_register_script( 'repeatable-controls', esc_url( REPEATABLE_CONTROL_URL . 'js/repeatable-controls.js' ), array( 'customize-controls' ) );
-        wp_register_style( 'repeatable-controls', esc_url( REPEATABLE_CONTROL_URL . 'css/repeatable-controls.css' ) );
+        wp_register_script( 'repeatable-controls', esc_url( $url . 'js/repeatable-controls.js' ), array( 'customize-controls' ) );
+        wp_register_style( 'repeatable-controls', esc_url( $url . 'css/repeatable-controls.css' ) );
 
         wp_enqueue_script( 'repeatable-controls' );
         wp_enqueue_style( 'repeatable-controls' );
@@ -143,7 +228,7 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
         </div>
 
         <div class="repeatable-actions">
-            <span data-tpl-id="<?php echo esc_attr( $tpl_id ); ?>" class="button-secondary add-new-repeat-item"><?php _e( 'Add a Item' ) ?></span>
+            <span class="button-secondary add-new-repeat-item"><?php _e( 'Add a Item', 'ft' ); ?></span>
         </div>
 
          <script type="text/html" class="repeatable-js-template">
@@ -163,7 +248,7 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
                         <a class="widget-action" href="#"></a>
                     </div>
                     <div class="widget-title">
-                        <h4 class="live-title"><?php _e( '[Untitled]' ); ?></h4>
+                        <h4 class="live-title"><?php _e( '[Untitled]', 'ft' ); ?></h4>
                     </div>
                 </div>
 
@@ -266,9 +351,9 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
                                             </div>
 
                                             <div class="actions">
-                                                <button class="button remove-button " <# if ( field.value.url !== '' ){ #> style="display:none"; <# } #> type="button"><?php _e( 'Remove' ) ?></button>
+                                                <button class="button remove-button " <# if ( field.value.url == '' ){ #> style="display:none"; <# } #> type="button"><?php _e( 'Remove' ) ?></button>
 
-                                                <button class="button upload-button" type="button"><?php _e( 'Change Image' ) ?></button>
+                                                <button class="button upload-button" data-add-txt="<?php esc_attr_e( 'Add Image', 'ft' ); ?>" data-change-txt="<?php esc_attr_e( 'Change Image', 'ft' ); ?>" type="button"><# if ( field.value.url == '' ){ #> <?php _e( 'Add Image', 'ft' ); ?> <# } else { #> <?php _e( 'Change Image', 'ft' ); ?> <# } #> </button>
                                                 <div style="clear:both"></div>
                                             </div>
 
@@ -288,8 +373,8 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
 
                             <div class="widget-control-actions">
                                 <div class="alignleft">
-                                    <a href="#" class="repeat-control-remove" title=""><?php _e( 'Remove' ); ?></a> |
-                                    <a href="#" class="repeat-control-close"><?php _e( 'Close' ); ?></a>
+                                    <a href="#" class="repeat-control-remove" title=""><?php _e( 'Remove', 'ft' ); ?></a> |
+                                    <a href="#" class="repeat-control-close"><?php _e( 'Close', 'ft' ); ?></a>
                                 </div>
                                 <br class="clear">
                             </div>
@@ -305,24 +390,5 @@ class WP_Customize_Repeatable_Control extends WP_Customize_Control {
 
     }
 
-
 }
 
-
-
-
-
-# Load scripts and styles.
-// add_action( 'customize_preview_init',             'repeatable_customize_preview_enqueue_scripts'   );
-
-
-/**
- * Load preview scripts/styles.
- *
- * @since  1.0.0
- * @access public
- * @return void
- */
-function repeatable_customize_preview_enqueue_scripts() {
-	wp_enqueue_script( 'repeatable-customize-preview', esc_url( REPEATABLE_CONTROL_URL . 'js/repeatable-preview.js' ), array( 'jquery' ) );
-}

@@ -5,7 +5,44 @@
  * @package OnePress
  */
 
-// require get_template_directory() . '/inc/customizer/typography/ctypo.php';
+
+require get_template_directory() . '/inc/customizer/typography/helper.php';
+
+/**
+ * TEST width default data
+ *
+ * Auto add style for typography settings
+ *
+ * @see wentasi_typography_helper_auto_apply
+ */
+wentasi_typography_helper_auto_apply(
+    'test_typography_test',
+    'body .ft-entry',
+    array(
+        'font-family'     => 'Lato',
+        'color'           => '#73ad21',
+        'font-style'      => '300', // italic
+        'font-weight'     => '700',
+        'font-size'       => '18px',
+        'line-height'     => '33px',
+        'letter-spacing'  => '2px',
+        'text-transform'  => 'lowercase',
+        'text-decoration' => 'underline',
+    )
+);
+wentasi_typography_helper_auto_apply( 'heading_h1_test', 'body .ft-boxct h1',
+    array(
+        'font-family'     => 'Caesar Dressing',
+        'color'           => '#73ad21',
+        //'font-style'      => 'italic', //
+        'font-weight'     => '700', // On available if font-style set
+        //'font-size'       => '18px',
+        //'line-height'     => '33px',
+        //'letter-spacing'  => '2px',
+        'text-transform'  => 'lowercase',
+        //'text-decoration' => 'underline',
+    )
+);
 
 
 
@@ -16,7 +53,6 @@ function wentasi_customize_register( $wp_customize ) {
 
 	// Load custom controls
 	require get_template_directory() . '/inc/customizer-controls.php';
-    require get_template_directory() . '/inc/customizer/repeatable/repeatable.php';
 
 	$wp_customize->get_setting( 'blogname' )->transport         = 'postMessage';
 	$wp_customize->get_setting( 'blogdescription' )->transport  = 'postMessage';
@@ -24,51 +60,70 @@ function wentasi_customize_register( $wp_customize ) {
 
 
 	/*------------------------------------------------------------------------*/
-    /*  TEST
+    /*  TEST REPEATABLE control
     /*------------------------------------------------------------------------*/
-
-
 
     /* === Testing === */
 
 
     //$wp_customize->add_panel( 'test_panel_repeatable', array( 'priority' => 5, 'title' => esc_html__( 'Repeatable Panel', 'ctypo' ) ) );
-
-    $wp_customize->add_section( 'test_section_repeatable',
-       // array( 'panel' => 'test_panel_repeatable', 'title' => esc_html__( 'Repeatable Section', 'ctypo' ) )
+    $wp_customize->add_section(
+        'test_section_repeatable',
+        // array( 'panel' => 'test_panel_repeatable', 'title' => esc_html__( 'Repeatable Section', 'ctypo' ) )
         array(  'title' => esc_html__( 'Repeatable Section', 'ctypo' ), 'priority' => 2, )
     );
 
     // @todo Better sanitize_callback functions.
-    $wp_customize->add_setting( 'abc_repeatable_id', array(
-        'default' => array(
+    $wp_customize->add_setting(
+        'new_repeatable_id',
+        array(
+        'default' => json_encode(
             array(
-                'id_name_1' => 'Ttitle',
-                'id_name_color' => '#333333',
-                'id_name_2'  => 'la la la',
-                'id_name_3'     => array(
-                    'id'=>'2324324',
-                    'url'=>'',
+                array(
+                    'id_name_1' => 'Item 1',
+                    'id_name_color' => '#333333',
+                    'id_name_2'  => 'la la la',
+                    'id_name_3'     => array(
+                        'id'=>'2324324',
+                        'url'=>'',
+                    ),
                 ),
-            ),
 
+                array(
+                    'id_name_1' => 'Item 2',
+                    'id_name_color' => '#333333',
+                    'id_name_2'  => 'la la la',
+                    'id_name_3'     => array(
+                        'id'=>'2324324',
+                        'url'=>'',
+                    ),
+                ),
+            )
         ),
         //'sanitize_callback' => 'sanitize_repeatable_data_field',
-        'sanitize_callback' => 'sanitize_repeatable_data_field',
-        'transport' => 'postMessage', // refresh or postMessage
+        'sanitize_callback' => 'wentasi_sanitize_repeatable_data_field',
+        'transport' => 'refresh', // refresh or postMessage
     ) );
 
+    $pages = get_pages( );
+
+    $option_pages = array();
+    $option_pages[ 0 ] = __( 'Select Page', 'domain' );
+
+    foreach ( $pages as $p ) {
+        $option_pages[ $p->ID ] =  $p->post_title;
+    }
 
     $wp_customize->add_control(
-        new WP_Customize_Repeatable_Control(
+        new Wentasi_Customize_Repeatable_Control(
             $wp_customize,
-            'abc_repeatable_id',
+            'new_repeatable_id',
             array(
                 'label' 		=> __('Repeatable Field', 'wentasi'),
                 'description'   => 'dsadadasdasas',
                 'section'       => 'test_section_repeatable',
                 'live_title_id' => 'id_name_1', // apply for unput text and textarea only
-                'title_format'  => __('Item: [live_title]', 'wentasi'),
+                'title_format'  => __('Abc: ', 'wentasi'), // [live_title]
 
                 'fields'    => array(
                     'id_name_1' => array(
@@ -99,6 +154,15 @@ function wentasi_customize_register( $wp_customize ) {
                         ),
                         'desc' =>'this is description text',
                     ),
+                    'id_page'    => array(
+                        'title'=>'Select Page',
+                        'type'=>'select',
+                        'multiple'=> false, // false
+                        'desc' =>'this is description text',
+                        'options' => $option_pages,
+                        //'default'=> 'option_1',
+                    ),
+
                     'id_name_4'    => array(
                         'title'=>'select title',
                         'type'=>'select',
@@ -145,6 +209,87 @@ function wentasi_customize_register( $wp_customize ) {
             )
         )
     );
+
+
+    /*------------------------------------------------------------------------*/
+    /*  TEST Typo control
+    /*------------------------------------------------------------------------*/
+
+    // Register typography control JS template.
+    $wp_customize->register_control_type( 'Wentasi_Customize_Typography_Control' );
+
+    $wp_customize->add_panel( 'test_panel_typo', array( 'priority' => 5, 'title' => esc_html__( 'Test Typo Panel', 'ctypo' ) ) );
+
+    // Load customizer typography control class.
+    $wp_customize->add_section(
+        'test_typography_section',
+        array( 'panel'=> 'test_panel_typo', 'title' => esc_html__( 'Test Paragraphs', 'ctypo' ), 'priority' => 5, )
+    );
+
+    // Add the `<p>` typography settings.
+    // @todo Better sanitize_callback functions.
+    $wp_customize->add_setting(
+        'test_typography_test',
+        array(
+            'sanitize_callback' => 'wentasi_sanitize_typography_field',
+            'transport' => 'postMessage'
+        )
+    );
+
+    $wp_customize->add_control(
+        new Wentasi_Customize_Typography_Control(
+            $wp_customize,
+            'test_typography_test',
+            array(
+                'label'       => esc_html__( 'Paragraph Typography', 'ctypo' ),
+                'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
+                'section'       => 'test_typography_section',
+                'css_selector'       => 'body .ft-entry', // css selector
+                ///'fields'
+            )
+        )
+    );
+
+
+    $wp_customize->add_section(
+        'test_typography_heading',
+        array( 'panel'=> 'test_panel_typo', 'title' => esc_html__( 'Test Heading', 'ctypo' ), 'priority' => 5, )
+    );
+
+
+    $wp_customize->add_setting(
+        'heading_h1_test',
+        array(
+            'sanitize_callback' => 'wentasi_sanitize_typography_field',
+            'transport' => 'postMessage'
+        )
+    );
+
+    $wp_customize->add_control(
+        new Wentasi_Customize_Typography_Control(
+            $wp_customize,
+            'heading_h1_test',
+            array(
+                'label'       => esc_html__( 'Heading h1', 'ctypo' ),
+                'description' => __( 'Select how you want your paragraphs to appear.', 'ctypo' ),
+                'section'       => 'test_typography_heading',
+                'css_selector'       => 'body .ft-boxct h1', // css selector for live preview
+                // Setting for fields and default values
+                'fields' => array(
+                    'font-family'     => 'Caesar Dressing',
+                    'color'           => '#73ad21',
+                    //'font-style'      => 'italic', //
+                    'font-weight'     => '700', // On available if font-style set
+                    //'font-size'       => '18px',
+                    //'line-height'     => '33px',
+                    //'letter-spacing'  => '2px',
+                    'text-transform'  => 'lowercase',
+                    //'text-decoration' => 'underline',
+                )
+            )
+        )
+    );
+
 
 
 

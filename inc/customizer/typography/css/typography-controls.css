@@ -1,0 +1,35 @@
+
+.customize-control-typography ul .customize-control-title{
+    font-size: 12px; font-weight: normal;
+}
+.customize-control-typography li.typography-half{
+
+}
+.customize-control-typography li.typography-half.right{
+
+}
+.customize-control-typography li.has-unit .unit-value {
+    width: 49%;
+    float: left;
+    margin: 0px;
+}
+.customize-control-typography li.has-unit .unit {
+    float: right;
+    width: 49%;
+    margin: 0px;
+}
+
+.customize-control-typography li.typography-half select, {
+}
+
+.customize-control-typography li.typography-half.first, .customize-control-typography li.clr {
+    clear: both;
+}
+
+
+.customize-control-typography optgroup.lv-2 {
+    padding-left: 30px;
+}
+.customize-control-typography .typography-wrap:after, .customize-control-typography li.has-unit:after {
+    clear: both; content: " "; display: block;
+}

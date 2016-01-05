@@ -1,11 +1,20 @@
+.list-repeatable .sortable-placeholder {
+    height: 42px;
+    display: block;
+}
+.list-repeatable li {
+    margin-bottom: 0px;
+    padding: 5px 0px 5px;
+}
+.list-repeatable .widget {
+    margin-bottom: 0px;
+}
 .list-repeatable  .widget-top:after {
     clear: both; display: block; content: " ";
 }
 
 .list-repeatable .explained .widget-title-action .widget-action::after{
-    -webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    -o-transform: rotate(180deg);
+    content: "\f142";
 }
 .list-repeatable .widget .widget-inside{
     display: none;
@@ -37,6 +46,7 @@
 
 .list-repeatable .item-media .actions , .repeatable-actions{
     text-align: right;
+    margin-top: 10px;
 }
 
 .list-repeatable .thumbnail-image {
