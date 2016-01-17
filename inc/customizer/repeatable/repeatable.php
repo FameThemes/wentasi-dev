@@ -145,12 +145,20 @@ class Wentasi_Customize_Repeatable_Control extends WP_Customize_Control {
             $this->title_format = '';
         }
 
+        if ( ! isset( $args['max_item'] ) ) {
+            $args['max_item'] = 0;
+        }
+
+        $this->max_item =  absint( $args['max_item'] );
+
+
     }
 
     public function to_json() {
         parent::to_json();
         $this->json['live_title_id'] = $this->live_title_id;
         $this->json['title_format']  = $this->title_format;
+        $this->json['max_item']     = $this->max_item;
         $this->json['value']         = $this->value();
         $this->json['fields']        = $this->fields;
 

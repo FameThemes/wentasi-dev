@@ -6,6 +6,13 @@ var RepeatableCustomize = function (  control  ){
     var default_data =  control.params.fields;
     var values = JSON.parse( control.params.value ) ;
 
+    var max_item  = 0; // unlimited
+
+    if ( ! isNaN( parseInt( control.params.max_item ) ) ) {
+        max_item = parseInt( control.params.max_item );
+    }
+
+
     that.getData = function ( ){
         var f = $( '.form-data', container );
         var data =  $( 'input, textarea, select', f ).serialize();
@@ -161,13 +168,26 @@ var RepeatableCustomize = function (  control  ){
             } );
         }
 
+        // Remove item
         $context.on( 'click', '.repeat-control-remove' , function( e ){
             e.preventDefault();
             $context.remove();
             that.rename();
             that.updateValue();
+            that._check_max_item();
         } );
 
+    };
+
+    that._check_max_item = function(){
+        var n = $( '.list-repeatable > li.repeatable-customize-control', control.container).length;
+       // console.log( n );
+        if ( n>= max_item ) {
+            $( '.repeatable-actions', control.container ).hide();
+        } else {
+            $( '.repeatable-actions', control.container ).show();
+        }
+        //console.log( max_item );
     };
 
 
@@ -199,12 +219,14 @@ var RepeatableCustomize = function (  control  ){
     that.template = that.repeaterTemplate();
 
     that.newItem = function(){
+
         $( '.add-new-repeat-item', control.container ).click( function(){
             var $html = $( that.template( default_data ) );
             $( '.list-repeatable', control.container ).append( $html );
             that.int( $html );
             that.actions( $html );
             that.updateValue();
+            that._check_max_item();
         } );
     };
 
@@ -241,8 +263,6 @@ var RepeatableCustomize = function (  control  ){
     if ( values.length ) {
         var _templateData, _values;
 
-        //console.log( _templateData );
-        //console.log( '-----' );
 
         for (var i = 0; i < values.length; i++) {
 
@@ -276,6 +296,8 @@ var RepeatableCustomize = function (  control  ){
     $( '.list-repeatable', container ).on( 'keyup change', 'input, select, textarea', function( e ) {
         that.updateValue();
     });
+
+    that._check_max_item();
 
 
 };

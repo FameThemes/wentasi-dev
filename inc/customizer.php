@@ -124,6 +124,7 @@ function wentasi_customize_register( $wp_customize ) {
                 'section'       => 'test_section_repeatable',
                 'live_title_id' => 'id_name_1', // apply for unput text and textarea only
                 'title_format'  => __('Abc: ', 'wentasi'), // [live_title]
+                'max_item'      => 3, // Maximum item can add
 
                 'fields'    => array(
                     'id_name_1' => array(
